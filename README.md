@@ -11,13 +11,16 @@ Then follow the instructions, and click on Apply to generate the project files.
 Note : No files except the factory_proxy.cpp will be overwritten
 TODO : Add overwriting options
 
-### The generated project ###
+### The generated files ###
 
 * mycontroller.cpp # The source file that contains your component class (inherits from the M3Component class).
 * mycontroller.h # The header file associated.
 * factory_proxy.cpp # This file is used by the m3 system to instantiate your component.
+* (OPTIONAL) mycontroller.proto # A protobuf file that can be used to communicate with your controller (using python for example). This is used in the m3 software.
+* (OPTIONAL) mycontroller.py # The python interface to your controller
+* (OPTIONAL) controller_example.py # An example on how to use the python interface
 
-
+### The generated project ###
 The structure is as follow :
 >
 project_name/
