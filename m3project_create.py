@@ -156,8 +156,24 @@ class FileGenerator():
         self.__generate_factory_proxy_file()
         self.__generate_protofiles()
         self.__generate_component_files()
+        
     def __generate_cmakefiles(self):
-        pass
+        old_new_str=['__PROJECT_CREATOR_COMP_NAME__',self.get_component_name()]
+        self.__create_custom_cmake('CMakeLists_TOP.txt', self.get_project_path()+'/'+'CMakeLists.txt', old_new_str,overwrite=False)
+        self.__create_custom_cmake('CMakeLists_SRC.txt', self.get_project_path()+'/'+'CMakeLists.txt', old_new_str,overwrite=False)
+        
+    def __create_custom_cmake(self,filepath_in,filepath_out,old_new_str,overwrite=False):
+        if overwrite or not os.path.isfile(filepath_out): 
+            with open(filepath_out, "wt") as fout:
+                with open(filepath_in, "rt") as fin:
+                    for line in fin:
+                        l=''
+                        for s in old_new_str:
+                            l = l+ line.replace(old_new_str[0],old_new_str[1])
+                        fout.write(l)
+        else:
+            print 'File',filepath_out,'already exists, skipping creation.'
+            
     def __generate_factory_proxy_file(self):
         project_name = self.get_project_name()
         comp_name = self.get_component_name()

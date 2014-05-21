@@ -1,18 +1,20 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(controller_example) 
+#The Component Name
+project(__PROJECT_CREATOR_COMP_NAME__)
 
 find_package(RTAI REQUIRED)
 find_package(M3rt REQUIRED)
-find_package(M3 REQUIRED toolbox chains robots hardware)
+find_package(M3 REQUIRED toolbox chains robots hardware robot_ctrl shared_mem)
 find_package(Boost REQUIRED)
 find_package(Eigen3 3.2 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(OROCOS-KDL REQUIRED)
+find_package(YamlCpp REQUIRED)
 
 # Start Protobuf
 # Get all your protofiles
-file(GLOB ProtoFiles "${M3ENS_PROTO_DIR}/m3ens/${PROJECT_NAME}/*.proto")
+file(GLOB ProtoFiles "${__PROJECT_CREATOR_PROTO_DIR__}/*.proto")
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.cc and .pb.h files
@@ -26,7 +28,7 @@ find_package(PythonInterp REQUIRED)
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.py files
-PROTOBUF_GENERATE_PYTHON(PySources ${M3ENS_PYTHON_DIR}/m3ens/${PROJECT_NAME} ${ProtoFiles}) 
+PROTOBUF_GENERATE_PYTHON(PySources ${__PROJECT_CREATOR_PROTO_DIR__} ${ProtoFiles}) 
 # Add a custom target to force the re-generation
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources})
 # End Protobuf 
@@ -43,21 +45,30 @@ include_directories(
     ${PROTOBUF_INCLUDE_DIR}
     ${M3_INCLUDE_DIR}
     ${KDL_INCLUDE_DIRS}
+    ${YAMLCPP_INCLUDE_DIR}
 )
 
 
 # Libraries to link against
-SET(LIBS ${RTAI_LIBRARIES} pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} m3hardware m3toolbox orocos-kdl m3robots m3chains)
+SET(LIBS 
+	${YAMLCPP_LIBRARY}
+	${RTAI_LIBRARIES}
+	pthread
+	${Boost_LIBRARIES}
+	${EIGEN3_LIBRARIES}
+	${PROTOBUF_LIBRARIES}
+	${M3RT_INCLUDE_DIR}
+	${M3_INCLUDE_DIR}
+)
 
 # Set your srcs here
 set( ALL_SRCS
-factory_proxy.cpp
-example.cpp
+__PROJECT_CREATOR_SRC__
 )
 
 # Set your headers here
 set( ALL_HDRS
-example.h
+__PROJECT_CREATOR_HDR__
 )
 
 
