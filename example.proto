@@ -1,0 +1,41 @@
+// M3 -- Meka Robotics Robot Components
+// Copyright (c) 2010 Meka Robotics
+// Author: __PROJECT_CREATOR_AUTHOR__
+// 
+// M3 is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// M3 is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with M3.  If not, see <http://www.gnu.org/licenses/>.
+//
+// PROTO FILE EXAMPLE : 
+// This is an example of what you can set in your protofile
+// You can fill Status, Command, and Param as you wish.
+
+option optimize_for = SPEED;
+// Import here all other proto files you need
+import "component_base.proto";
+
+
+message __PROJECT_CREATOR_CLASS_NAME__Status
+{
+    optional M3BaseStatus    base=1;                        //reserved
+    optional double        foo=2;                        //sensor value for ex
+}
+
+message __PROJECT_CREATOR_CLASS_NAME__Param
+{
+    optional double            gain=1;                //Controller gain for ex
+}
+
+message __PROJECT_CREATOR_CLASS_NAME__Command
+{
+    optional bool            enable=1;                //turn  on/off
+}

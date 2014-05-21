@@ -4,6 +4,7 @@ import gtk, gobject
 import os, pwd
 from datetime import datetime
 import re
+from catkin import cmake
 
 class FileGenerator():
     def __init__(self,classname,root_path,project_name,comp_name,author=''):
@@ -45,8 +46,9 @@ class FileGenerator():
         print 'Root Folder:',self.root_path
         print 'Project name:',self.project_name
         print 'Component name:',self.comp_name
-        for f in self.get_filename():
+        for f,c in zip(self.get_filename(),self.get_class_name()):
             print 'For filename:',f
+            print '- ClassName:',c
             print '- src file:',self.get_source_filepath_local(f)
             print '- hdr file:',self.get_header_filepath_local(f)
             print '- proto file:',self.get_proto_filepath_local(f)
@@ -156,21 +158,48 @@ class FileGenerator():
         self.__generate_factory_proxy_file()
         self.__generate_protofiles()
         self.__generate_component_files()
-        
+    def __is_str_in_file(self,str,filepath):
+        with open(filepath,'r') as f:
+                for line in f:
+                    if line.find(str)>=0:
+                        return True
+        return False
+
     def __generate_cmakefiles(self):
-        old_new_str=['__PROJECT_CREATOR_COMP_NAME__',self.get_component_name()]
-        self.__create_custom_cmake('CMakeLists_TOP.txt', self.get_project_path()+'/'+'CMakeLists.txt', old_new_str,overwrite=False)
-        self.__create_custom_cmake('CMakeLists_SRC.txt', self.get_project_path()+'/'+'CMakeLists.txt', old_new_str,overwrite=False)
+        match_elem=[]
+        match_elem.append(['__PROJECT_CREATOR_COMP_NAME__',self.get_component_name()])
+        match_elem.append(['__PROJECT_CREATOR_PROJECT_NAME__',self.get_project_name()])
+        match_elem.append(['__PROJECT_CREATOR_PROJECT_NAME_UPPER__',self.get_project_name().upper()])
+        match_elem.append(['__PROJECT_CREATOR_PROTO_DIR__',self.get_proto_path()])
+        match_elem.append(['__PROJECT_CREATOR_PYTHON_DIR__',self.get_python_path()])
+
+        self.__replace_in_file('CMakeLists_TOP.txt', self.get_project_path()+'/'+'CMakeLists.txt', match_elem,overwrite=False)
         
-    def __create_custom_cmake(self,filepath_in,filepath_out,old_new_str,overwrite=False):
+        self.__replace_in_file('CMakeLists_SRC.txt', self.get_source_path()+'/'+'CMakeLists.txt', match_elem,overwrite=True)
+        
+        cmakelists_sub_filepath = self.get_project_path()+self.__process_path(self.src_dir)+'/'+self.get_project_name()+'/'+'CMakeLists.txt'
+        if os.path.isfile(cmakelists_sub_filepath):
+            # First look if already there
+            if self.__is_str_in_file('add_subdirectory('+self.get_component_name()+')',cmakelists_sub_filepath):
+                print 'add_subdirectory('+self.get_component_name()+') already in ',cmakelists_sub_filepath+',skipping edition.'
+            else: # Add at the end                
+                with open(cmakelists_sub_filepath, "a") as f:
+                    f.write(
+    """
+    add_directory("""+self.get_component_name()+""")
+    """)
+        else:
+            self.__replace_in_file('CMakeLists_SUB.txt', cmakelists_sub_filepath, match_elem,overwrite=False)
+            
+    def __replace_in_file(self,filepath_in,filepath_out,matching_element,overwrite=False):
         if overwrite or not os.path.isfile(filepath_out): 
-            with open(filepath_out, "wt") as fout:
-                with open(filepath_in, "rt") as fin:
+            with open(filepath_out, 'w') as fout:
+                with open(filepath_in, 'r') as fin:
                     for line in fin:
-                        l=''
-                        for s in old_new_str:
-                            l = l+ line.replace(old_new_str[0],old_new_str[1])
-                        fout.write(l)
+                        for s in matching_element:
+                            if line.find(s[0])>=0:
+                                line = line.replace(s[0],s[1])
+                        fout.write(line)
         else:
             print 'File',filepath_out,'already exists, skipping creation.'
             
@@ -386,41 +415,15 @@ using namespace std;
 
 }"""
         return content
-    
+
     def __generate_protofiles(self):
-        content = """
-option optimize_for = SPEED;
-import "component_base.proto";
-
-
-message M3ExampleStatus
-{
-    optional M3BaseStatus    base=1;                        //reserved
-    optional double        foo=2;                        //sensor value
-}
-
-message M3ExampleParam
-{
-    optional double            max_fx=1;                //scale status value
-    optional double            max_fy=2;                //scale status value
-    optional double            max_fz=3;                //scale status value
-
-}
-
-message M3ExampleCommand
-{
-    optional bool            enable=1;                //turn  on/off
-    optional double            fx=2;
-    optional double            fy=3;
-    optional double            fz=4;
-}
-"""
-        for fname in self.get_filename():
-            fwrite = self.__safe_createfile(self.get_proto_filepath(fname))
-            if fwrite:
-                fwrite.write(content)
-                fwrite.close()
         
+        for f,c in zip(self.get_filename(),self.get_class_name()):
+            match_elem = []
+            match_elem.append(['__PROJECT_CREATOR_AUTHOR__',self.get_author()])
+            match_elem.append(['__PROJECT_CREATOR_CLASS_NAME__',c])
+            self.__replace_in_file('example.proto', self.get_proto_filepath(f), match_elem, overwrite=True)
+            
             
     def __generate_component_files(self):
         project_dir = self.get_project_path()

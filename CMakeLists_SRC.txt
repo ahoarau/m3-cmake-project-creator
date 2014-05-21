@@ -7,14 +7,14 @@ find_package(RTAI REQUIRED)
 find_package(M3rt REQUIRED)
 find_package(M3 REQUIRED toolbox chains robots hardware robot_ctrl shared_mem)
 find_package(Boost REQUIRED)
-find_package(Eigen3 3.2 REQUIRED)
+find_package(Eigen3 3 REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(OROCOS-KDL REQUIRED)
-find_package(YamlCpp REQUIRED)
+find_package(YamlCpp 0.3 REQUIRED)
 
 # Start Protobuf
 # Get all your protofiles
-file(GLOB ProtoFiles "${__PROJECT_CREATOR_PROTO_DIR__}/*.proto")
+file(GLOB ProtoFiles "__PROJECT_CREATOR_PROTO_DIR__/*.proto")
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.cc and .pb.h files
@@ -28,7 +28,7 @@ find_package(PythonInterp REQUIRED)
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.py files
-PROTOBUF_GENERATE_PYTHON(PySources ${__PROJECT_CREATOR_PROTO_DIR__} ${ProtoFiles}) 
+PROTOBUF_GENERATE_PYTHON(PySources __PROJECT_CREATOR_PYTHON_DIR__/ ${ProtoFiles}) 
 # Add a custom target to force the re-generation
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources})
 # End Protobuf 
@@ -57,19 +57,15 @@ SET(LIBS
 	${Boost_LIBRARIES}
 	${EIGEN3_LIBRARIES}
 	${PROTOBUF_LIBRARIES}
-	${M3RT_INCLUDE_DIR}
-	${M3_INCLUDE_DIR}
+	${M3RT_LIBRARIES}
+	${M3_LIBRARIES}
 )
 
 # Set your srcs here
-set( ALL_SRCS
-__PROJECT_CREATOR_SRC__
-)
+FILE(GLOB ALL_SRCS *.cpp)
 
 # Set your headers here
-set( ALL_HDRS
-__PROJECT_CREATOR_HDR__
-)
+FILE(GLOB ALL_SRCS *.h)
 
 
 # Add the proto-sources to the src list
