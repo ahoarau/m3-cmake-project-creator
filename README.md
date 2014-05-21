@@ -11,7 +11,7 @@ Then follow the instructions, and click on Apply to generate the project files.
 Note : No files except the factory_proxy.cpp will be overwritten
 TODO : Add overwriting options
 
-## The generated files ##
+### The generated files ###
 
 * **mycontroller.cpp**: The source file that contains your component class (inherits from the M3Component class).
 * **mycontroller.h**: The header file associated.
@@ -22,8 +22,8 @@ TODO : Add overwriting options
 
 ### The generated project ###
 The structure is as follow :
->
-project_name/
+
+>project_name/
 >>src/
 >>>project_name/
 >>>>mycomponents/
@@ -45,7 +45,7 @@ project_name/
 >>>>mycomponents/
 >>>>>mycontroller.py
 >>>>>controller_example.py
->
+
 
 ## Compile your project ##
 
@@ -57,6 +57,7 @@ cd build
 cmake ..
 make
 ```
+
 This will generate the following files:
 
 * **libmycontroller.so**: The library that needs to be loaded in m3.
@@ -66,7 +67,7 @@ This will generate the following files:
 
 The structure of you compiled project is now : 
 
-> project_name/
+>project_name/
 
 >>src/
 
@@ -80,7 +81,6 @@ The structure of you compiled project is now :
 
 >>build/
 
->
 
 
 ## Run your project ##
