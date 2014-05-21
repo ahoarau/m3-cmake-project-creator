@@ -11,7 +11,11 @@ Then follow the instructions, and click on Apply to generate the project files.
 Note : No files except the factory_proxy.cpp will be overwritten
 TODO : Add overwriting options
 
-### Run the script ###
+### The generated project ###
+
+mycontroller.cpp # The source file that contains your component class (inherits from the M3Component class).
+mycontroller.h # The header file associated.
+factory_proxy.cpp # This file is used by the m3 system to instantiate your component.
 
 
 The structure is as follow :
@@ -20,8 +24,8 @@ project_name/
 >>src/
 >>>project_name/
 >>>>mycomponents/
->>>>>mycontroller.cpp
->>>>>factory_proxy.cpp
+>>>>>mycontroller.cpp 
+>>>>>factory_proxy.cpp 
 
 >>include/
 >>>project_name/
