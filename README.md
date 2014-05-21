@@ -1,7 +1,7 @@
 # M3 CMake Project Creator #
 
 This scripts generates a CMake project to control the Meka robot, using the real-time components.
-### Run the script ###
+## Run the script ##
 ```
 #!Bash
 python m3project_creator.py
@@ -11,7 +11,7 @@ Then follow the instructions, and click on Apply to generate the project files.
 Note : No files except the factory_proxy.cpp will be overwritten
 TODO : Add overwriting options
 
-### The generated files ###
+## The generated files ##
 
 * **mycontroller.cpp** # The source file that contains your component class (inherits from the M3Component class).
 * **mycontroller.h** # The header file associated.
@@ -47,7 +47,7 @@ project_name/
 >>>>>controller_example.py
 >
 
-## Compiling your project ##
+## Compile your project ##
 
 ```
 #!Bash
@@ -57,8 +57,14 @@ cd build
 cmake ..
 make
 ```
+This will generate the following files:
+* **libmycontroller.so** : The library that needs to be loaded in m3.
+* **mycontroller.cc** : The generated protobuf source file.
+* **mycontroller.pb.h** : The generated protobuf header.
+* **mycontroller.pb.py** : The generated protobuf python source.
 
-
+## Run your project ##
+De
 
 
 
