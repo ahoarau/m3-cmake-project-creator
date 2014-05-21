@@ -13,9 +13,9 @@ TODO : Add overwriting options
 
 ### The generated project ###
 
-mycontroller.cpp # The source file that contains your component class (inherits from the M3Component class).
-mycontroller.h # The header file associated.
-factory_proxy.cpp # This file is used by the m3 system to instantiate your component.
+* mycontroller.cpp # The source file that contains your component class (inherits from the M3Component class).
+* mycontroller.h # The header file associated.
+* factory_proxy.cpp # This file is used by the m3 system to instantiate your component.
 
 
 The structure is as follow :
