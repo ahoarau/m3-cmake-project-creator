@@ -13,12 +13,12 @@ TODO : Add overwriting options
 
 ## The generated files ##
 
-* **mycontroller.cpp** # The source file that contains your component class (inherits from the M3Component class).
-* **mycontroller.h** # The header file associated.
-* **factory_proxy.cpp** # This file is used by the m3 system to instantiate your component.
-* (OPTIONAL) **mycontroller.proto** # A protobuf file that can be used to communicate with your controller (using python for example). This is used in the m3 software.
-* (OPTIONAL) **mycontroller.py** # The python interface to your controller
-* (OPTIONAL) **controller_example.py** # An example on how to use the python interface
+* **mycontroller.cpp**: The source file that contains your component class (inherits from the M3Component class).
+* **mycontroller.h**: The header file associated.
+* **factory_proxy.cpp**: This file is used by the m3 system to instantiate your component.
+* (OPTIONAL) **mycontroller.proto**: A protobuf file that can be used to communicate with your controller (using python for example). This is used in the m3 software.
+* (OPTIONAL) **mycontroller.py**: The python interface to your controller
+* (OPTIONAL) **controller_example.py**: An example on how to use the python interface
 
 ### The generated project ###
 The structure is as follow :
@@ -58,13 +58,25 @@ cmake ..
 make
 ```
 This will generate the following files:
-* **libmycontroller.so** : The library that needs to be loaded in m3.
-* **mycontroller.cc** : The generated protobuf source file.
-* **mycontroller.pb.h** : The generated protobuf header.
-* **mycontroller.pb.py** : The generated protobuf python source.
+
+* **libmycontroller.so**: The library that needs to be loaded in m3.
+* **mycontroller.cc**: The generated protobuf source file.
+* **mycontroller.pb.h**: The generated protobuf header.
+* **mycontroller.pb.py**: The generated protobuf python source.
+
+The structure of you compiled project is now : 
+>
+project_name/
+>>src/
+>>include/
+>>proto/
+>>python/
+>>lib/
+>>build/
+>
+
 
 ## Run your project ##
-De
 
 
 
