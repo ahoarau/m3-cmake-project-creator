@@ -65,14 +65,21 @@ This will generate the following files:
 * **mycontroller.pb.py**: The generated protobuf python source.
 
 The structure of you compiled project is now : 
->
-project_name/
+
+> project_name/
+
 >>src/
+
 >>include/
+
 >>proto/
+
 >>python/
+
 >>lib/
+
 >>build/
+
 >
 
 
