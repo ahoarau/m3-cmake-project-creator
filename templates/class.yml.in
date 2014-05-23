@@ -1,0 +1,5 @@
+name: @FILENAME@_test
+humanoid: m3humanoid_right_left_arm_head_mr12
+
+param:
+  gain: 1.5

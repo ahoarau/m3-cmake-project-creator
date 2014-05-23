@@ -4,7 +4,6 @@ import gtk, gobject
 import os, pwd
 from datetime import datetime
 import re
-from catkin import cmake
 
 class FileGenerator():
     def __init__(self,classname,root_path,project_name,comp_name,author=''):
@@ -173,9 +172,9 @@ class FileGenerator():
         match_elem.append(['__PROJECT_CREATOR_PROTO_DIR__',self.get_proto_path()])
         match_elem.append(['__PROJECT_CREATOR_PYTHON_DIR__',self.get_python_path()])
 
-        self.__replace_in_file('CMakeLists_TOP.txt', self.get_project_path()+'/'+'CMakeLists.txt', match_elem,overwrite=False)
+        self.__replace_in_file('templates/CMakeLists_top.txt.in', self.get_project_path()+'/'+'CMakeLists.txt', match_elem,overwrite=False)
         
-        self.__replace_in_file('CMakeLists_SRC.txt', self.get_source_path()+'/'+'CMakeLists.txt', match_elem,overwrite=True)
+        self.__replace_in_file('templates/CMakeLists_src.txt.in', self.get_source_path()+'/'+'CMakeLists.txt', match_elem,overwrite=True)
         
         cmakelists_sub_filepath = self.get_project_path()+self.__process_path(self.src_dir)+'/'+self.get_project_name()+'/'+'CMakeLists.txt'
         if os.path.isfile(cmakelists_sub_filepath):
@@ -189,7 +188,7 @@ class FileGenerator():
     add_directory("""+self.get_component_name()+""")
     """)
         else:
-            self.__replace_in_file('CMakeLists_SUB.txt', cmakelists_sub_filepath, match_elem,overwrite=False)
+            self.__replace_in_file('templates/CMakeLists_sub.txt.in', cmakelists_sub_filepath, match_elem,overwrite=False)
             
     def __replace_in_file(self,filepath_in,filepath_out,matching_element,overwrite=False):
         if overwrite or not os.path.isfile(filepath_out): 
@@ -515,11 +514,11 @@ class M3ComponentAssistant(gtk.Assistant):
         table.attach(self.entry, 1, 2, 1, 2)
         self.entry.connect('changed', self.changed_comp_name_cb)
         
-        # Controller name 
-        label = gtk.Label("Controller Name :")
+        # Component name 
+        label = gtk.Label("Components Name :")
         table.attach(label, 0, 1, 2, 3)
         self.entry_comp_folder = gtk.Entry()
-        self.entry_comp_folder.set_text("controller_example")
+        self.entry_comp_folder.set_text("mycomponent")
         table.attach(self.entry_comp_folder, 1, 2, 2, 3)
         self.entry_comp_folder.connect('changed', self.changed_comp_name_cb)
         

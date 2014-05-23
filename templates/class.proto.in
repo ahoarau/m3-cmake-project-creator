@@ -24,18 +24,18 @@ option optimize_for = SPEED;
 import "component_base.proto";
 
 
-message __PROJECT_CREATOR_CLASS_NAME__Status
+message @CLASS_NAME@Status
 {
-    optional M3BaseStatus    base=1;                        //reserved
-    optional double        foo=2;                        //sensor value for ex
+    optional M3BaseStatus    	base=1;                        //reserved
+    optional double        	foo=2;                        //sensor value for ex
 }
 
-message __PROJECT_CREATOR_CLASS_NAME__Param
+message @CLASS_NAME@Param
 {
-    optional double            gain=1;                //Controller gain for ex
+    optional double            	gain=1;                //Controller gain for ex
 }
 
-message __PROJECT_CREATOR_CLASS_NAME__Command
+message @CLASS_NAME@Command
 {
-    optional bool            enable=1;                //turn  on/off
+    optional bool            	enable=1;                //turn  on/off
 }

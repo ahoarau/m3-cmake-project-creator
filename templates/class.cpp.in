@@ -1,0 +1,95 @@
+/**
+ * Part of the M3 realtime control system by Meka Robotics LLC.
+ * Copyright (C) Meka Robotics LLC 2014  meka
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "m3ens/mycomponent/controller_example.h" 
+
+namespace @PROJECT_NAME@ {
+using namespace m3rt;
+using namespace std;
+
+bool @CLASS_NAME@::ReadConfig(const char * filename)
+{
+        YAML::Node doc;
+        GetYamlDoc(filename, doc);
+
+        if (!M3Component::ReadConfig(filename))
+                return false;
+        
+        doc["humanoid"] >> robot_name;
+        double k;
+        doc["param"]["gain"] >> k;
+        param.set_gain(k);
+
+        return true;
+}
+
+bool @CLASS_NAME@::LinkDependentComponents()
+{
+        bot=(M3Humanoid*) factory->GetComponent(foo_name);
+        if (bot==NULL)
+        {
+                M3_INFO("M3Humanoid component %s not found for component %s\n",robot_name.c_str(),GetName().c_str());
+                return false;
+        }
+        return true;
+}
+
+void @CLASS_NAME@::Startup()
+{
+        if (bot==NULL)
+                SetStateError();
+        else
+                SetStateSafeOp();
+}
+
+void @CLASS_NAME@Shutdown(){}
+
+void @CLASS_NAME@StepStatus()
+{
+        status.set_foo(1.0); 
+}
+
+void @CLASS_NAME@::StepCommand()
+{
+	tmp_cnt++;
+	mReal time=tmp_cnt/250.0;
+	mReal k = param.get_gain();
+	mReal qdes_deg = -40.0 + k*sin(time);
+	
+	if (!(tmp_cnt%100))
+		cout<<"Current sin : "<<qdes_deg<<endl;
+	if (!command.enable())
+	{
+		bot->SetMotorPowerOn();
+		int i=4;
+	
+		bot->SetModeThetaGc(LEFT_ARM,i);
+		bot->SetStiffness(LEFT_ARM,i,1.0);
+		bot->SetSlewRateProportional(LEFT_ARM,i,1.0);
+		bot->SetThetaDeg(LEFT_ARM,i,qdes_deg);
+	}
+	else
+	{
+		bot->SetMotorPowerOff();
+		for (int i=0;i<bot->GetNdof(LEFT_ARM);i++)
+			bot->SetModeOff(LEFT_ARM,i);
+		
+	}
+
+}
+
+}

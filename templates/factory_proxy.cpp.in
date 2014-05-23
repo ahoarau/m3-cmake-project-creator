@@ -1,0 +1,44 @@
+
+/* 
+MEKA CONFIDENTIAL
+
+Copyright 2011
+Meka Robotics LLC
+All Rights Reserved.
+
+NOTICE:  All information contained herein is, and remains
+the property of Meka Robotics LLC. The intellectual and 
+technical concepts contained herein are proprietary to 
+Meka Robotics LLC and may be covered by U.S. and Foreign Patents,
+patents in process, and are protected by trade secret or copyright law.
+Dissemination of this information or reproduction of this material
+is strictly forbidden unless prior written permission is obtained
+from Meka Robotics LLC.
+*/
+#include <stdio.h>
+#include <m3rt/base/component.h>
+#include "@PROJECT_NAME@/@COMP_NAME@/@FILENAME@.h"
+
+extern "C" 
+{
+    #define @PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME "@FILENAME@"
+
+    m3rt::M3Component* create_@FILENAME@(){return new @PROJECT_NAME_UPPER@::@CLASSNAME@;}
+
+    void destroy_@FILENAME@(m3rt::M3Component* c) {delete c;}
+
+    class M3FactoryProxy 
+    { 
+    public:
+        M3FactoryProxy()
+        {
+            m3rt::creator_factory[@PROJECT_NAME_UPPER@_@FILENAME@_NAME] = create_@FILENAME@;
+            m3rt::destroy_factory[@PROJECT_NAME_UPPER@_@FILENAME@_NAME] = destroy_@FILENAME@;
+
+        }
+    };
+
+    ///////////////////////////////////////////////////////
+    // The library's one instance of the proxy
+    M3FactoryProxy proxy;
+}

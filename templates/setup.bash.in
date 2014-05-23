@@ -1,0 +1,2 @@
+
+export M3_ROBOT=$M3_ROBOT:@PROJECT_PATH@/robot_config/

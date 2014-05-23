@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 #The Component Name
-project(__PROJECT_CREATOR_COMP_NAME__)
+project(@COMP_NAME@)
 
 find_package(RTAI REQUIRED)
 find_package(M3rt REQUIRED)
@@ -14,7 +14,7 @@ find_package(YamlCpp 0.3 REQUIRED)
 
 # Start Protobuf
 # Get all your protofiles
-file(GLOB ProtoFiles "__PROJECT_CREATOR_PROTO_DIR__/*.proto")
+file(GLOB ProtoFiles "@PROTO_DIR@/*.proto")
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.cc and .pb.h files
@@ -28,7 +28,7 @@ find_package(PythonInterp REQUIRED)
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.py files
-PROTOBUF_GENERATE_PYTHON(PySources __PROJECT_CREATOR_PYTHON_DIR__/ ${ProtoFiles}) 
+PROTOBUF_GENERATE_PYTHON(PySources @PYTHON_DIR@/ ${ProtoFiles}) 
 # Add a custom target to force the re-generation
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources})
 # End Protobuf 

@@ -1,0 +1,58 @@
+/**
+ * Part of the M3 realtime control system by Meka Robotics LLC.
+ * Copyright (C) Meka Robotics LLC 2014  meka
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+#ifndef @PROJECT_NAME@_@FILENAME_UPPER@_H
+#define @PROJECT_NAME@_@FILENAME_UPPER@_H
+
+#include <m3rt/base/component.h>
+#include <google/protobuf/message.h>
+#include "@PROJECT_NAME@/@COMP_NAME@/@FILENAME@.pb.h"
+
+namespace @PROJECT_NAME@
+{
+using namespace std;
+using namespace m3;
+
+class @CLASS_NAME@ : public m3rt::M3Component
+{
+        public:
+                @CLASS_NAME@()tmp_cnt(0): m3rt::M3Component() {}
+                virtual ~@CLASS_NAME@(){}
+
+                google::protobuf::Message * GetCommand(){return &command;}
+                google::protobuf::Message * GetStatus(){return &status;}
+                google::protobuf::Message * GetParam(){return &param;}
+
+        protected:
+                bool ReadConfig(const char * filename);
+                void Startup();
+                void Shutdown();
+                bool LinkDependentComponents();
+                void StepStatus();
+                void StepCommand();
+                @CLASS_NAME@ status;
+                @CLASS_NAME@ command;
+                @CLASS_NAME@ param;
+                M3BaseStatus * GetBaseStatus(){return status.mutable_base();}
+
+        private:
+                M3Humanoid * bot;
+		string robot_name;
+		int tmp_cnt;
+};
+}
+#endif
