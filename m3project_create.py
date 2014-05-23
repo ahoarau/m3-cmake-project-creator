@@ -4,26 +4,70 @@ import gtk, gobject
 import os, pwd
 from datetime import datetime
 import re
+import glob
 
 class FileGenerator():
     def __init__(self,classname,root_path,project_name,comp_name,author=''):
-        self.author = author
+        assert isinstance(comp_name,str)
+        assert isinstance(classname,list)
+        assert isinstance(root_path,str)
+        assert isinstance(project_name,str)
+        assert isinstance(author,str)
+        assert isinstance(author,str)
         assert os.path.isdir(root_path)
-        assert len(classname)>0
+        
+        self.author = author
         self.classname = classname
         self.root_path = self.__process_path(root_path) #mekabot
         self.filename = [self.__get_filename_from_class(c) for c in self.classname]
         self.project_name = project_name
         self.comp_name = comp_name
         
-        self.src_dir = '/src'
-        self.inc_dir = '/include'
-        self.proto_dir = '/proto'
-        self.py_dir = '/python'
-        self.factory_filename = 'factory_proxy.cpp'
-        self.pretty_print()
+        self.create_tree()
+        #self.src_dir = '/src'
+        #self.inc_dir = '/include'
+        #self.proto_dir = '/proto'
+        #self.py_dir = '/python'
+        #self.factory_filename = 'factory_proxy.cpp'
+        
+        #self.pretty_print()
+        #self.template_files = glob.glob('templates/*.in')
+
+        
+        self.template_elem=[]
+        self.template_elem.append(['@COMP_NAME@',self.get_component_name()])
+        self.template_elem.append(['@PROJECT_PATH@',self.get_project_name()])
+        self.template_elem.append(['@PROJECT_NAME@',self.get_project_name()])
+        self.template_elem.append(['@PROJECT_NAME_UPPER@',self.get_project_name().upper()])
+        self.template_elem.append(['@PROTO_DIR@',self.get_proto_path()])
+        self.template_elem.append(['@PYTHON_DIR@',self.get_python_path()])
+        self.template_elem.append(['@AUTHOR@',self.get_python_path()])
+        
+    def find_files_in_subdirectories(self, subdirectory='',extension=None):
+        if subdirectory:
+            path = subdirectory
+        else:
+            path = os.getcwd()
+        if not extension:
+            extension=''
+        files=[]
+        for root, dirs, names in os.walk(path):
+            for name in names:
+                if name.endswith(extension) and not name.endswith('~'):
+                    relroot = os.path.relpath(root,subdirectory)
+                    files.append(os.path.join(relroot, name))
+        return files
+        
+    def create_tree(self):
+        files = self.find_files_in_subdirectories('template', '.in')
+        print 'Files to be created'
+        for f in files:
+            print f
+        
+        
     def get_component_name(self):
         return self.comp_name
+    
     def __get_filename_from_class(self,classname):
         l = [e.lower() for e in re.findall('[A-Z][^A-Z]*',classname)] #Splits regarding to upper cases
         f = ''
@@ -34,10 +78,13 @@ class FileGenerator():
             else:
                 f=f+'_'+l[i]
         return f
+    
     def get_project_name(self):
         return self.project_name
+    
     def get_factory_filename(self):
         return self.factory_filename
+    
     def get_filename(self):
         return self.filename
     
@@ -53,8 +100,10 @@ class FileGenerator():
             print '- proto file:',self.get_proto_filepath_local(f)
             print '- protobuf file:',self.get_pb_h_filepath_local(f)
             print '- python file:',self.get_python_filepath_local(f)
+            
     def get_author(self):
         return self.author
+    
     def __get_sub_path(self):
         return self.project_name +'/' + self.comp_name
     
@@ -85,29 +134,35 @@ class FileGenerator():
     
     def get_factory_filepath(self):
         return self.get_source_path()+'/'+self.get_factory_filename()
+    
     def get_source_filepath(self,f):
         return self.get_source_path()+'/'+self.get_source_filename(f)
+    
     def get_source_filepath_local(self,f):
         return self.__get_sub_path()+'/'+self.get_source_filename(f)
     
     def get_header_filepath(self,f):
         return self.get_header_path()+'/'+self.get_header_filename(f)
+    
     def get_header_filepath_local(self,f):
         return self.__get_sub_path()+'/'+self.get_header_filename(f)
     
     def get_proto_filepath(self,f):
         return self.get_proto_path()+'/'+self.get_proto_filename(f)
+    
     def get_proto_filepath_local(self,f):
         return self.__get_sub_path()+'/'+self.get_proto_filename(f)
     
     def get_python_filepath(self,f):
         return self.get_python_path()+'/'+self.get_python_filename(f)
+    
     def get_python_filepath_local(self,f):
         return self.__get_sub_path()+'/'+self.get_python_filename(f)
     
     
     def get_pb_h_filepath(self,f):
         return self.get_header_path()+'/'+self.get_pb_h_filename(f)
+    
     def get_pb_h_filepath_local(self,f):
         return self.__get_sub_path()+'/'+self.get_pb_h_filename(f)
     
@@ -151,12 +206,15 @@ class FileGenerator():
         else:
             print "File",filepath,"already exists, skipping creation."
             return None
+        
     def write_files(self):
         self.__create_dir_structure()
         self.__generate_cmakefiles()
         self.__generate_factory_proxy_file()
         self.__generate_protofiles()
         self.__generate_component_files()
+        self.__generate_python_files()
+
     def __is_str_in_file(self,str,filepath):
         with open(filepath,'r') as f:
                 for line in f:
@@ -165,12 +223,7 @@ class FileGenerator():
         return False
 
     def __generate_cmakefiles(self):
-        match_elem=[]
-        match_elem.append(['__PROJECT_CREATOR_COMP_NAME__',self.get_component_name()])
-        match_elem.append(['__PROJECT_CREATOR_PROJECT_NAME__',self.get_project_name()])
-        match_elem.append(['__PROJECT_CREATOR_PROJECT_NAME_UPPER__',self.get_project_name().upper()])
-        match_elem.append(['__PROJECT_CREATOR_PROTO_DIR__',self.get_proto_path()])
-        match_elem.append(['__PROJECT_CREATOR_PYTHON_DIR__',self.get_python_path()])
+        
 
         self.__replace_in_file('templates/CMakeLists_top.txt.in', self.get_project_path()+'/'+'CMakeLists.txt', match_elem,overwrite=False)
         
@@ -419,8 +472,8 @@ using namespace std;
         
         for f,c in zip(self.get_filename(),self.get_class_name()):
             match_elem = []
-            match_elem.append(['__PROJECT_CREATOR_AUTHOR__',self.get_author()])
-            match_elem.append(['__PROJECT_CREATOR_CLASS_NAME__',c])
+            match_elem.append(['@AUTHOR__',self.get_author()])
+            match_elem.append(['@CLASS_NAME__',c])
             self.__replace_in_file('example.proto', self.get_proto_filepath(f), match_elem, overwrite=True)
             
             

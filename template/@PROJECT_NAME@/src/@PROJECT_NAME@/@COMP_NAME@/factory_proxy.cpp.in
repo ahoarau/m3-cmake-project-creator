@@ -1,4 +1,3 @@
-
 /* 
 MEKA CONFIDENTIAL
 
@@ -23,17 +22,17 @@ extern "C"
 {
     #define @PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME "@FILENAME@"
 
-    m3rt::M3Component* create_@FILENAME@(){return new @PROJECT_NAME_UPPER@::@CLASSNAME@;}
+    m3rt::M3Component* create_@FILENAME@(){return new @PROJECT_NAME@::@CLASSNAME@;}
 
-    void destroy_@FILENAME@(m3rt::M3Component* c) {delete c;}
+    void destroy_@FILENAME@(m3rt::M3Component* c) {delete c;} 
 
     class M3FactoryProxy 
     { 
     public:
         M3FactoryProxy()
         {
-            m3rt::creator_factory[@PROJECT_NAME_UPPER@_@FILENAME@_NAME] = create_@FILENAME@;
-            m3rt::destroy_factory[@PROJECT_NAME_UPPER@_@FILENAME@_NAME] = destroy_@FILENAME@;
+            m3rt::creator_factory[@PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME] = create_@FILENAME@;
+            m3rt::destroy_factory[@PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME] = destroy_@FILENAME@;
 
         }
     };
