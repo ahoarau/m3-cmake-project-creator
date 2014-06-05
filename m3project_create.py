@@ -5,44 +5,279 @@ import os, pwd
 from datetime import datetime
 import re
 import glob
+class ProcFile:
+    def __init__(self,f_in_path,f_out_path):
+        self.var =[]
+        self.f_in_path = f_in_path
+        self.f_in = open(self.f_in_path,'r').read()
+        self.f_out_path = f_out_path
+        self.f_out=''
+        self.dir_out=''
+        
+    def get_f(self):
+        return self.f_in
 
+    def process_var(self):
+        ## The files
+        self.f_out = self.process_var_in_str([self.f_in], self.var)[0]
+        ## The output path
+        self.f_out_path = self.process_var_in_str([self.f_out_path], self.var)[0]
+        self.f_out_path = self.f_out_path.replace('.in','')
+        ## The dir (just for the tree)
+        self.dir_out = '/'.join(self.get_file_out_path().split('/')[:-1])
+        
+    def get_file_in_path(self):
+        return self.f_in_path
+    
+    def get_file_out_path(self):
+        return self.f_out_path
+    
+    def get_full_path(self):
+        return self.file_outself.f_out_path
+    
+    def add_var(self,var):
+        assert len(var)==2
+        self.var.append(var)
+        
+    def process_var_in_str(self,str_in,vars,overwrite=False):
+        str_out=[]
+        for line in str_in:
+            for v in vars:
+                variable = v[0]
+                repl_str = v[1]
+                line = line.replace(variable,repl_str)
+            str_out.append(line)
+        return str_out
+
+    def pretty_print(self):
+        print ""
+        print "f_in_path:",self.f_in_path
+        print "f_out_path: ",self.f_out_path
+        print "dir_out:",self.dir_out
+    
+    def write(self,overwrite=False):
+        self.create_dir()
+        self.write_file_out(overwrite)
+        
+    def write_file_out(self,overwrite=False):
+        with open(self.f_out_path,'w') as f :
+            f.write(self.f_out)
+        print 'file ',self.f_out_path,'written'
+    def create_dir(self):
+        if not os.path.isdir(self.dir_out):
+            os.makedirs(self.dir_out)
+        
 class FileGenerator():
     def __init__(self,classname,root_path,project_name,comp_name,author=''):
         assert isinstance(comp_name,str)
-        assert isinstance(classname,list)
+        assert isinstance(classname,str)
         assert isinstance(root_path,str)
         assert isinstance(project_name,str)
         assert isinstance(author,str)
         assert isinstance(author,str)
         assert os.path.isdir(root_path)
         
+        
+        self.template_dir = 'template'
+        self.template_extension = '.in'
+        
+        self.pfiles=[]
+        
         self.author = author
         self.classname = classname
-        self.root_path = self.__process_path(root_path) #mekabot
-        self.filename = [self.__get_filename_from_class(c) for c in self.classname]
+        self.root_path = root_path #mekabot
+        self.filename = self.__get_filename_from_classname(classname)
         self.project_name = project_name
         self.comp_name = comp_name
         
-        self.create_tree()
-        #self.src_dir = '/src'
-        #self.inc_dir = '/include'
-        #self.proto_dir = '/proto'
-        #self.py_dir = '/python'
-        #self.factory_filename = 'factory_proxy.cpp'
+        file_tree = self.__get_file_tree_raw()
         
-        #self.pretty_print()
-        #self.template_files = glob.glob('templates/*.in')
+        files_path_to_open = [os.path.dirname(__file__)+'/'+self.template_dir+'/'+f for f in file_tree]
+        
+        files_path_to_write_raw = [self.root_path+f for f in file_tree]
+        print ""
+        for f_in,f_out in zip(files_path_to_open,files_path_to_write_raw):
+            self.pfiles.append(ProcFile(f_in,f_out))
+        
+        
 
+
+        self.src_dir = '/src'
+        self.inc_dir = '/include'
+        self.proto_dir = '/proto'
+        self.py_dir = '/python'
+        self.factory_filename = 'factory_proxy.cpp'
         
+        #### Defining the single elements
         self.template_elem=[]
         self.template_elem.append(['@COMP_NAME@',self.get_component_name()])
-        self.template_elem.append(['@PROJECT_PATH@',self.get_project_name()])
+        self.template_elem.append(['@PROJECT_PATH@',self.get_project_path()])
         self.template_elem.append(['@PROJECT_NAME@',self.get_project_name()])
         self.template_elem.append(['@PROJECT_NAME_UPPER@',self.get_project_name().upper()])
-        self.template_elem.append(['@PROTO_DIR@',self.get_proto_path()])
-        self.template_elem.append(['@PYTHON_DIR@',self.get_python_path()])
-        self.template_elem.append(['@AUTHOR@',self.get_python_path()])
+        self.template_elem.append(['@PROTO_DIR@',self.get_proto_path_local()])
+        self.template_elem.append(['@PYTHON_DIR@',self.get_python_path_local()])
+        self.template_elem.append(['@AUTHOR@',self.get_author()])
+        #### Defining the multiple elements
+        #self.template_elem_list=[]
+        self.template_elem.append(['@CLASS_NAME@' ,self.get_class_name()])
+        self.template_elem.append(['@FILENAME@'   ,self.get_filename()])
+        self.template_elem.append(['@FILENAME_UPPER@',self.get_filename().upper()])
         
+        
+        
+            
+        for pfile in self.pfiles:
+            for var in self.template_elem:
+                pfile.add_var(var)
+            pfile.process_var()
+            pfile.pretty_print()
+            pfile.write()
+        
+        
+            #print 'files out :',files_out
+            #for file_out in files_out:
+                #print self.template_dir+'/'+file_in," => " ,file_out
+                #if isinstance(file_out, str):
+                    #self.__replace_in_file(self.template_dir+'/'+file_in, file_out, self.template_elem, overwrite=False)
+        
+    def __get_processed_file_list(self,files_in,root_path=''):
+        ##### Getting the right Files names
+        files_dict={}
+        for file_in in files_in:
+            #file_path_out=[]
+            self.__replace_var_list_in_str(files_dict,file_in, self.template_elem_list)
+        print ""
+        print files_dict
+        
+        for fout_t in fout_tmp:
+            print ""
+            print 'fout_t:',fout_t
+            if isinstance(fout_t,str):
+                
+                fout_t = fout_t.replace('.in','')
+                fout = self.__match_template_in_str([fout_t], self.template_elem)
+                print 'fout_tmp:',fout_t,'orig:',file_path
+                print '=>fout:',fout
+                file_path_out.append(root_path+fout[0])
+            else:
+                for subfout_t in fout_t:
+                    
+                    #print 'subfout_t:',subfout_t
+                    subfout_t = subfout_t.replace('.in','')
+                    fout = self.__match_template_in_str([subfout_t], self.template_elem)
+                    print 'subfout_t:',subfout_t,'orig:',file_path
+                    print '=>fout:',fout
+                    
+                    file_path_out.append(root_path+fout[0])
+
+            files_dict[file_path]={}
+            files_dict[file_path]['file_out'] = file_path_out
+        print "****************"
+        return files_dict
+        
+        ##### Open the files, math template and save them to newly created filesnames (fout)
+
+        #files_path = self.__match_template_in_str(files_path, self.template_elem)
+    def __replace_var_list_in_str(self,file_dict,var_dict):
+        #file_dict={}
+        
+        ## var_dict = { @CLASSNAME@ : ['A','B']}
+        ## we want var_list ['@VAR@','MyValue'] => specific to each file!
+        
+        
+        #assert isinstance(file_dict, dict)
+        #assert str_in
+        #print 'str_in:',str_in
+        '''for var in var_dict:
+            key = var[0]
+            repl_elem = var[1]
+            n_elem = len(repl_elem)
+            #print 'looking for :',s[0]
+            #print 'var:',s[1]
+            if str_in.find(key)>=0:
+                for i in xrange(len(repl_elem)):
+                    file_dict[str_in] = {}
+                    #file_dict[str_in][key] = 
+                break
+            #else:
+                #file_dict.append(str_in)
+            
+            #print 'processing...'
+            '''
+        #if len(file_dict)==0:
+        #    return str_in
+        file_dict[str_in] = {}
+        file_dict[str_in]['out']=''
+        file_dict[str_in]['env'] = []
+        
+        for f in file_dict:
+            pass
+        
+        
+        '''for i in xrange(len(var_dict[0][1])):
+            var=[]
+            for s in var_dict:
+                    var.append([s[0],s[1][i]]) ## Transform into regular var elem
+            #print 'var : ',var
+            #print '[file_dict[i]]:',[file_dict[i]]
+            str_out = self.__match_template_in_str([str_in], var)
+            file_dict[str_in]['file_out'] = str_out
+            file_dict[str_in]['var'] = var
+            #print 'we get :',file_dict[i]
+            #if len(file_dict)==1:
+                #return [file_dict]
+        #for d in file_dict:
+            #print d,file_dict[d]
+        return'''
+
+        #print 'file_dict:',file_dict
+    def __match_template_list_in_str1(self,str_in,template_list):
+        str_out=str_in
+        for line in str_in:
+            #print 'line:',line
+            for s in template_list:
+                #print 'looking for :',s[0]
+                #print 'template:',s[1]
+                if line.find(s[0])>=0:
+                    for i in xrange(len(s[1])):
+                        str_out[i]=line
+                    break
+            #print 'str out is now:'
+            #for s in str_out:
+                #print s
+            #print 'processing...'
+            
+            
+            for i in xrange(len(template_list[0][1])):
+                template_tmp=[]
+                for s in template_list:
+                        template_tmp.append([s[0],s[1][i]])
+                #print 'template_tmp:',template_tmp
+                str_out[i] = self.__match_template_in_str([str_out[i]], template_tmp)
+        return str_out
+        #print 'str_out:',str_out
+            
+    def __match_template_in_str(self,str_in,template):
+        str_out=[]
+        #print 'strin:',str_in
+        #print 'template:',template
+        for line in str_in:
+            for s in template:
+                if line.find(s[0])>=0:
+                    line = line.replace(s[0],s[1])
+            str_out.append(line)
+        #print 'I return :',str_out
+        return str_out
+    def find_dirs_in_subdirectories(self, subdirectory=''):
+        if subdirectory:
+            path = subdirectory
+        else:
+            path = os.path.dirname(__file__)
+        dirs = []
+        for root, dir, names in os.walk(path):
+            for name in names:
+                dirs.append(dir)
+        return dirs
     def find_files_in_subdirectories(self, subdirectory='',extension=None):
         if subdirectory:
             path = subdirectory
@@ -57,18 +292,22 @@ class FileGenerator():
                     relroot = os.path.relpath(root,subdirectory)
                     files.append(os.path.join(relroot, name))
         return files
-        
-    def create_tree(self):
-        files = self.find_files_in_subdirectories('template', '.in')
+    def __get_dir_tree_raw(self):
+        dirs = self.find_dirs_in_subdirectories(self.template_dir)
+        return dirs
+    def __get_file_tree_raw(self):
+        files = self.find_files_in_subdirectories(self.template_dir, self.template_extension)
         print 'Files to be created'
         for f in files:
+            #f = self.root_path+f
             print f
+        return files
         
         
     def get_component_name(self):
         return self.comp_name
     
-    def __get_filename_from_class(self,classname):
+    def __get_filename_from_classname(self,classname):
         l = [e.lower() for e in re.findall('[A-Z][^A-Z]*',classname)] #Splits regarding to upper cases
         f = ''
         i = 0
@@ -115,7 +354,7 @@ class FileGenerator():
         return path
     
     def get_project_path(self):
-        return self.root_path+'/'+self.project_name
+        return self.root_path+self.project_name
     
     def get_source_filename(self,f):
         return f+'.cpp'
@@ -168,7 +407,9 @@ class FileGenerator():
     
     def get_proto_path(self):
         return self.get_project_path()+self.proto_dir+'/'+self.__get_sub_path()
-
+    def get_proto_path_local(self):
+        return (self.proto_dir+'/'+self.__get_sub_path())[1:]
+    
     def get_source_path(self):
         return self.get_project_path()+self.src_dir+'/'+self.__get_sub_path()
 
@@ -179,6 +420,8 @@ class FileGenerator():
     
     def get_python_path(self):
         return self.get_project_path()+self.py_dir+'/'+self.__get_sub_path()
+    def get_python_path_local(self):
+        return (self.py_dir+'/'+self.__get_sub_path())[1:]
 
     def get_class_name(self):
         return self.classname
@@ -252,9 +495,21 @@ class FileGenerator():
                             if line.find(s[0])>=0:
                                 line = line.replace(s[0],s[1])
                         fout.write(line)
+            print 'File',filepath_out,'created.'
         else:
             print 'File',filepath_out,'already exists, skipping creation.'
-            
+    def __replace_in_file_multiple_elem(self,filepath_in,filepath_out,matching_element_list,overwrite=False):
+        if overwrite or not os.path.isfile(filepath_out): 
+            with open(filepath_out, 'w') as fout:
+                with open(filepath_in, 'r') as fin:
+                    for line in fin:
+                        for s in matching_element:
+                            if line.find(s[0])>=0:
+                                line = line.replace(s[0],s[1])
+                        fout.write(line)
+            print 'File',filepath_out,'created.'
+        else:
+            print 'File',filepath_out,'already exists, skipping creation.'
     def __generate_factory_proxy_file(self):
         project_name = self.get_project_name()
         comp_name = self.get_component_name()
@@ -816,6 +1071,7 @@ class M3ComponentAssistant(gtk.Assistant):
         return
         
 if __name__ == '__main__':
-    win = M3ComponentAssistant()
-    win.show()
-    gtk.main()
+    FileGenerator(classname='MyClass', root_path='/home/meka/', project_name='myproject', comp_name='myComp', author='me')
+    #win = M3ComponentAssistant()
+    #win.show()
+    #gtk.main()

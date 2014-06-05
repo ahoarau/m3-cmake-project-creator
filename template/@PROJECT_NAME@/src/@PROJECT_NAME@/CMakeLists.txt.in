@@ -1,4 +1,4 @@
 
 
 ## Add your project dirs here
-add_subdirectory(__PROJECT_CREATOR_COMP_NAME__)
+add_subdirectory(@COMP_NAME@)

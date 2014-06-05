@@ -15,17 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "m3ens/mycomponent/controller_example.h" 
+#include "@PROJECT_NAME@/@COMP_NAME@/@FILENAME@.h" 
 
 namespace @PROJECT_NAME@ {
 using namespace m3rt;
+using namespace m3;
 using namespace std;
+using namespace KDL;
 
 bool @CLASS_NAME@::ReadConfig(const char * filename)
 {
-        YAML::Node doc;
-        GetYamlDoc(filename, doc);
-
         if (!M3Component::ReadConfig(filename))
                 return false;
         
@@ -39,7 +38,7 @@ bool @CLASS_NAME@::ReadConfig(const char * filename)
 
 bool @CLASS_NAME@::LinkDependentComponents()
 {
-        bot=(M3Humanoid*) factory->GetComponent(foo_name);
+        bot=(M3Humanoid*) factory->GetComponent(robot_name);
         if (bot==NULL)
         {
                 M3_INFO("M3Humanoid component %s not found for component %s\n",robot_name.c_str(),GetName().c_str());
@@ -56,9 +55,9 @@ void @CLASS_NAME@::Startup()
                 SetStateSafeOp();
 }
 
-void @CLASS_NAME@Shutdown(){}
+void @CLASS_NAME@::Shutdown(){}
 
-void @CLASS_NAME@StepStatus()
+void @CLASS_NAME@::StepStatus()
 {
         status.set_foo(1.0); 
 }
@@ -66,8 +65,8 @@ void @CLASS_NAME@StepStatus()
 void @CLASS_NAME@::StepCommand()
 {
 	tmp_cnt++;
-	mReal time=tmp_cnt/250.0;
-	mReal k = param.get_gain();
+	mReal time=max(100./250.,tmp_cnt/250.0);
+	mReal k = param.gain();
 	mReal qdes_deg = -40.0 + k*sin(time);
 	
 	if (!(tmp_cnt%100))

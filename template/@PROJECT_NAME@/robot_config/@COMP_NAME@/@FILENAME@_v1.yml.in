@@ -1,4 +1,4 @@
-name: @FILENAME@_test
+name: @FILENAME@_v1
 humanoid: m3humanoid_right_left_arm_head_mr12
 
 param:

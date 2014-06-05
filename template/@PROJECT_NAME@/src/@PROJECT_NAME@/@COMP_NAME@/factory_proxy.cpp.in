@@ -14,15 +14,14 @@ Dissemination of this information or reproduction of this material
 is strictly forbidden unless prior written permission is obtained
 from Meka Robotics LLC.
 */
-#include <stdio.h>
 #include <m3rt/base/component.h>
 #include "@PROJECT_NAME@/@COMP_NAME@/@FILENAME@.h"
 
 extern "C" 
 {
-    #define @PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME "@FILENAME@"
+    #define @FILENAME_UPPER@_TYPE_NAME "@FILENAME@"
 
-    m3rt::M3Component* create_@FILENAME@(){return new @PROJECT_NAME@::@CLASSNAME@;}
+    m3rt::M3Component* create_@FILENAME@(){return new @PROJECT_NAME@::@CLASS_NAME@;}
 
     void destroy_@FILENAME@(m3rt::M3Component* c) {delete c;} 
 
@@ -31,8 +30,8 @@ extern "C"
     public:
         M3FactoryProxy()
         {
-            m3rt::creator_factory[@PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME] = create_@FILENAME@;
-            m3rt::destroy_factory[@PROJECT_NAME_UPPER@_@FILENAME_UPPER@_NAME] = destroy_@FILENAME@;
+            m3rt::creator_factory[@FILENAME_UPPER@_TYPE_NAME] = create_@FILENAME@;
+            m3rt::destroyer_factory[@FILENAME_UPPER@_TYPE_NAME] = destroy_@FILENAME@;
 
         }
     };

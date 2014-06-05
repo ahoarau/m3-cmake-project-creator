@@ -14,7 +14,7 @@ find_package(YamlCpp 0.3 REQUIRED)
 
 # Start Protobuf
 # Get all your protofiles
-file(GLOB ProtoFiles "@PROTO_DIR@/*.proto")
+file(GLOB ProtoFiles "${@PROJECT_NAME_UPPER@_PROTO_DIR}/@PROJECT_NAME@/@COMP_NAME@/*.proto")
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.cc and .pb.h files
@@ -28,7 +28,7 @@ find_package(PythonInterp REQUIRED)
 # Import external directories
 SET(PROTOBUF_IMPORT_DIRS ${M3RT_INCLUDE_DIR} ${M3_INCLUDE_DIR})
 # Generate the .pb.py files
-PROTOBUF_GENERATE_PYTHON(PySources @PYTHON_DIR@/ ${ProtoFiles}) 
+PROTOBUF_GENERATE_PYTHON(PySources ${@PROJECT_NAME_UPPER@_PYTHON_DIR}/@PROJECT_NAME@/@COMP_NAME@/ ${ProtoFiles}) 
 # Add a custom target to force the re-generation
 add_custom_target(${PROJECT_NAME}_python_protobuf_output ALL DEPENDS ${PySources})
 # End Protobuf 
@@ -64,17 +64,17 @@ SET(LIBS
 # Set your srcs here
 FILE(GLOB ALL_SRCS *.cpp)
 
-# Set your headers here
-FILE(GLOB ALL_SRCS *.h)
+# Set your headers here (only needed for install)
+#set(ALL_SRCS @FILENAME@.h)
 
 
 # Add the proto-sources to the src list
 list(APPEND ALL_SRCS ${ProtoSources})
 
-# Add the proto-headers to the headers 
-list(APPEND ALL_HDRS
-${ProtoHeaders}
-)
+# Add the proto-headers to the headers (only needed for install)
+#list(APPEND ALL_HDRS
+#${ProtoHeaders}
+#)
 
 
 # Building

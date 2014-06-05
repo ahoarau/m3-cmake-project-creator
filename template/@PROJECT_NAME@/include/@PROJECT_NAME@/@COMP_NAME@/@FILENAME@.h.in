@@ -20,17 +20,19 @@
 
 #include <m3rt/base/component.h>
 #include <google/protobuf/message.h>
+#include <m3/robots/humanoid.h>
 #include "@PROJECT_NAME@/@COMP_NAME@/@FILENAME@.pb.h"
 
 namespace @PROJECT_NAME@
 {
-using namespace std;
-using namespace m3;
 
 class @CLASS_NAME@ : public m3rt::M3Component
 {
         public:
-                @CLASS_NAME@()tmp_cnt(0): m3rt::M3Component() {}
+                @CLASS_NAME@():m3rt::M3Component(CONTROL_PRIORITY),bot(NULL),tmp_cnt(0) 
+		{
+			RegisterVersion("default",DEFAULT);
+		}
                 virtual ~@CLASS_NAME@(){}
 
                 google::protobuf::Message * GetCommand(){return &command;}
@@ -38,21 +40,21 @@ class @CLASS_NAME@ : public m3rt::M3Component
                 google::protobuf::Message * GetParam(){return &param;}
 
         protected:
+                enum {DEFAULT};
+                M3BaseStatus * GetBaseStatus(){return status.mutable_base();}
                 bool ReadConfig(const char * filename);
                 void Startup();
                 void Shutdown();
                 bool LinkDependentComponents();
                 void StepStatus();
                 void StepCommand();
-                @CLASS_NAME@ status;
-                @CLASS_NAME@ command;
-                @CLASS_NAME@ param;
-                M3BaseStatus * GetBaseStatus(){return status.mutable_base();}
-
+                @CLASS_NAME@Status status;
+                @CLASS_NAME@Command command;
+                @CLASS_NAME@Param param;
         private:
-                M3Humanoid * bot;
-		string robot_name;
-		int tmp_cnt;
+                m3::M3Humanoid * bot;
+                std::string robot_name;
+                int tmp_cnt;
 };
 }
 #endif

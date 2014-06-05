@@ -1,10 +1,8 @@
-factory_py_libs:
-- /usr/local/lib/python2.7/dist-packages/m3/m3meka_factory_proxy.py
-
+ 
 factory_rt_libs:
 - @PROJECT_PATH@/lib/lib@COMP_NAME@.so
 
 rt_components:
   @COMP_NAME@: 
-    @FILENAME@_v1: @FILENAME@ # name of the controller(should match the config file) : type (as is factory_proxy.cpp)
+    @FILENAME@_v1: @FILENAME@ # name of the controller(should match the config file) : type (as in factory_proxy.cpp)
 
