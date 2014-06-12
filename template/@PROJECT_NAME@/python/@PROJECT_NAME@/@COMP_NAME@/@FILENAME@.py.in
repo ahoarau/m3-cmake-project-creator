@@ -17,18 +17,17 @@
 
 # This is an example of how to properly create a python wrapper for your component
 
-from m3.toolbox import *
-import @PROJECT_NAME@.@FILENAME@_pb2 as m3c
 from m3.component import M3Component
-
+# Import your generated protobuf
+import @PROJECT_NAME@.@COMP_NAME@.@FILENAME@_pb2 as pb
 
 class @CLASS_NAME@(M3Component):
     """@CLASS_NAME@ component"""
     def __init__(self,name):
         M3Component.__init__(self,name,type='@FILENAME@')
-        self.status=m3c.@CLASS_NAME@Status()
-        self.command=m3c.@CLASS_NAME@Command()
-        self.param=mrt.@CLASS_NAME@Param()
+        self.status=pb.@CLASS_NAME@Status()
+        self.command=pb.@CLASS_NAME@Command()
+        self.param=pb.@CLASS_NAME@Param()
         self.read_config()
 
     def set_enable_off(self):

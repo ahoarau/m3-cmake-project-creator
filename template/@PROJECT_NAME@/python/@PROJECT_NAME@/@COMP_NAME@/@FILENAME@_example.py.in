@@ -9,26 +9,35 @@ import m3.rt_proxy as m3p
 import m3.toolbox as m3t
 import m3.humanoid as m3h
 
-import @PROJECT_NAME@.example as me
+# Import your classfile
+import @PROJECT_NAME@.@COMP_NAME@.@FILENAME@ as me
 	
+## Connect to the robot via the proxy
 proxy = m3p.M3RtProxy()
 proxy.start()
-rex = me.@CLASSNAME@('@FILENAME@_v1')
-proxy.publish_param(rex)
-proxy.subscribe_status(rex)
-proxy.publish_command(rex)
 
+# Instantiate your controller (inside your component pkg)
+@FILENAME@ = me.@CLASS_NAME@('@FILENAME@_v1')
+
+# let the proxy know what you want to do with it
+proxy.publish_param(@FILENAME@)
+proxy.subscribe_status(@FILENAME@)
+proxy.publish_command(@FILENAME@)
+
+# Subscribing to the robot's class
 bot_name=m3t.get_robot_name()
 bot=m3h.M3Humanoid(bot_name)
-#proxy.publish_param(bot) #allow to set payload
 proxy.subscribe_status(bot)
-#proxy.publish_command(bot)
 proxy.make_operational_all()
+
+# Run the demo
 
 try:
 	while True:
-		print 'Enter gain k (currently '+rex.get_gain()+') [1.0]'
-		rex.set_gain(m3t.get_float(1.0))
+		print '******* @FILENAME@ example ********'
+		print '(press ctrl+c to quit)'
+		print 'Enter gain k (currently',@FILENAME@.get_gain(0),') [1.0]'
+		@FILENAME@.set_gain(m3t.get_float(1.0))
 
 		print 'Run duration (s) [3.0] ?'
 		d=max(0,m3t.get_float(3.0))
@@ -36,13 +45,14 @@ try:
 		print 'Hit enter to run'
 		raw_input()
 		while time.time()-ts<d:
-			rex.set_enable_on()
+			@FILENAME@.set_enable_on()
 			proxy.step()
 			time.sleep(0.1)
 			print 'Running...',time.time()-ts
 		print 'Done'
-		rex.set_enable_off()
+		@FILENAME@.set_enable_off()
 		proxy.step()
 		time.sleep(0.1)
 except (KeyboardInterrupt,EOFError):
+	print 'Stopping program'
 	proxy.stop()

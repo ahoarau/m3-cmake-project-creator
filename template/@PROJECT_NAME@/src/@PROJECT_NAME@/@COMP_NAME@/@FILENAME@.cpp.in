@@ -32,7 +32,6 @@ bool @CLASS_NAME@::ReadConfig(const char * filename)
         double k;
         doc["param"]["gain"] >> k;
         param.set_gain(k);
-
         return true;
 }
 
@@ -69,10 +68,12 @@ void @CLASS_NAME@::StepCommand()
 	mReal k = param.gain();
 	mReal qdes_deg = -40.0 + k*sin(time);
 	
-	if (!(tmp_cnt%100))
-		cout<<"Current sin : "<<qdes_deg<<endl;
-	if (!command.enable())
+	
+	if (command.enable())
 	{
+		if (!(tmp_cnt%100))
+		cout<<"@CLASS_NAME@ Current sin : "<<qdes_deg<<endl;
+
 		bot->SetMotorPowerOn();
 		int i=4;
 	
