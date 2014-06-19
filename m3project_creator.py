@@ -5,27 +5,69 @@ import os, pwd
 from datetime import datetime
 import re
 import glob
+from collections import defaultdict
+import webbrowser
+
+FILE_MARKER = '<files>'
+
+tmp_files=[]
+
+
+
+def attach(branch, trunk):
+    '''
+    Insert a branch of directories on its trunk.
+    '''
+    parts = branch.split('/', 1)
+    if len(parts) == 1:  # branch is a file
+        trunk[FILE_MARKER].append(parts[0])
+    else:
+        node, others = parts
+        if node not in trunk:
+            trunk[node] = defaultdict(dict, ((FILE_MARKER, []),))
+        attach(others, trunk[node])
+
+def prettify(d, indent=0):
+    '''
+    Print the file tree structure with proper indentation.
+    '''
+    for key, value in d.iteritems():
+        if key == FILE_MARKER:
+            if value:
+                print '  ' * indent + str(value)
+        else:
+            print '  ' * indent + str(key)
+            if isinstance(value, dict):
+                prettify(value, indent+1)
+            else:
+                print '  ' * (indent+1) + str(value)
 class ProcFile:
-    def __init__(self,f_in_path,f_out_path):
-        self.var =[]
+    def __init__(self,f_in_path,f_out_path,var=[]):
+        assert isinstance(var,list)
+        assert isinstance(f_in_path,str)
+        assert isinstance(f_out_path,str)
+        self.var =var
         self.f_in_path = f_in_path
         self.f_in = open(self.f_in_path,'r').read()
         self.f_out_path = f_out_path
         self.f_out=''
         self.dir_out=''
-        
+        from os.path import expanduser
+        home = expanduser("~")
+        tmp_dir = home+'/.tmp/'
+        self.tmp_dir_out=tmp_dir
+        self.tmp_file_out_path=self.tmp_dir_out
     def get_f(self):
         return self.f_in
 
-    def process_var(self):
+    def process_var_in_file_path(self):
         ## The files
-        self.f_out = self.process_var_in_str([self.f_in], self.var)[0]
-        ## The output path
-        self.f_out_path = self.process_var_in_str([self.f_out_path], self.var)[0]
-        self.f_out_path = self.f_out_path.replace('.in','')
+        self.f_out_path = self.process_var_in_str(self.f_out_path, self.var)[0]
+        self.f_out = self.process_var_in_str(self.f_in, self.var)[0]
+        #self.f_out_path = self.f_out_path.replace('.in','')
         ## The dir (just for the tree)
         self.dir_out = '/'.join(self.get_file_out_path().split('/')[:-1])
-        
+
     def get_file_in_path(self):
         return self.f_in_path
     
@@ -36,11 +78,18 @@ class ProcFile:
         return self.file_outself.f_out_path
     
     def add_var(self,var):
-        assert len(var)==2
-        self.var.append(var)
-        
-    def process_var_in_str(self,str_in,vars,overwrite=False):
+        #assert len(var)==2
+        if not isinstance(var[0],list):
+            var=[var]
+        for v in var:
+            self.var.append(v)
+    @staticmethod
+    def process_var_in_str(str_in,vars,overwrite=False):
         str_out=[]
+        if not isinstance(str_in,list):
+            str_in=[str_in]
+        if not isinstance(vars[0],list):
+            vars=[vars]
         for line in str_in:
             for v in vars:
                 variable = v[0]
@@ -54,26 +103,45 @@ class ProcFile:
         print "f_in_path:",self.f_in_path
         print "f_out_path: ",self.f_out_path
         print "dir_out:",self.dir_out
-    
-    def write(self,overwrite=False):
-        self.create_dir()
-        self.write_file_out(overwrite)
+        print "vars : ",self.var
         
-    def write_file_out(self,overwrite=False):
-        with open(self.f_out_path,'w') as f :
-            f.write(self.f_out)
-        print 'file ',self.f_out_path,'written'
-    def create_dir(self):
-        if not os.path.isdir(self.dir_out):
-            os.makedirs(self.dir_out)
+    def write_tmp(self,f_name_in=''):
+        self.tmp_file_out_path = self.tmp_dir_out+f_name_in
+        if not os.path.isfile(self.tmp_file_out_path):
+            self.create_dir(self.tmp_dir_out)
+            self.write_file_out(self.tmp_file_out_path)
+            tmp_files.append(self.tmp_file_out_path)
+        
+    def open_tmp(self):
+        try:
+            webbrowser.open(self.tmp_file_out_path)
+        except Exception,e:
+            print e
+            
+    def write(self):
+        self.create_dir(self.dir_out)
+        self.write_file_out(overwrite=False)
+        
+    def write_file_out(self,f_out_path=None,overwrite=False):
+        if not f_out_path:
+            with open(self.f_out_path,'w') as f :
+                f.write(self.f_out)
+            print self.f_out_path,'written'
+        else:
+            with open(f_out_path,'w') as f :
+                f.write(self.f_out)
+            print f_out_path,'written'
+
+    def create_dir(self,dir_out):
+        if not os.path.isdir(dir_out):
+            os.makedirs(dir_out)
         
 class FileGenerator():
     def __init__(self,classname,root_path,project_name,comp_name,author=''):
         assert isinstance(comp_name,str)
-        assert isinstance(classname,str)
+        assert isinstance(classname,list)
         assert isinstance(root_path,str)
         assert isinstance(project_name,str)
-        assert isinstance(author,str)
         assert isinstance(author,str)
         assert os.path.isdir(root_path)
         
@@ -86,29 +154,22 @@ class FileGenerator():
         self.author = author
         self.classname = classname
         self.root_path = root_path #mekabot
-        self.filename = self.__get_filename_from_classname(classname)
+        self.filename = [self.__get_filename_from_classname(c) for c in self.classname]
         self.project_name = project_name
         self.comp_name = comp_name
         
-        file_tree = self.__get_file_tree_raw()
+        file_tree_in = self.__get_file_tree_raw()
         
-        files_path_to_open = [os.path.dirname(__file__)+'/'+self.template_dir+'/'+f for f in file_tree]
+        files_path_to_open = [os.path.dirname(__file__)+'/'+self.template_dir+'/'+f for f in file_tree_in]
         
-        files_path_to_write_raw = [self.root_path+f for f in file_tree]
-        print ""
-        for f_in,f_out in zip(files_path_to_open,files_path_to_write_raw):
-            self.pfiles.append(ProcFile(f_in,f_out))
+        files_path_to_write_raw = [self.root_path+ '/' + f.replace(self.template_extension,'') for f in file_tree_in]
         
         
-
-
         self.src_dir = '/src'
         self.inc_dir = '/include'
         self.proto_dir = '/proto'
-        self.py_dir = '/python'
-        self.factory_filename = 'factory_proxy.cpp'
-        
-        #### Defining the single elements
+        self.py_dir = '/python'        
+        #### Defining the elements to remplace in files
         self.template_elem=[]
         self.template_elem.append(['@COMP_NAME@',self.get_component_name()])
         self.template_elem.append(['@PROJECT_PATH@',self.get_project_path()])
@@ -117,28 +178,44 @@ class FileGenerator():
         self.template_elem.append(['@PROTO_DIR@',self.get_proto_path_local()])
         self.template_elem.append(['@PYTHON_DIR@',self.get_python_path_local()])
         self.template_elem.append(['@AUTHOR@',self.get_author()])
-        #### Defining the multiple elements
-        #self.template_elem_list=[]
-        self.template_elem.append(['@CLASS_NAME@' ,self.get_class_name()])
-        self.template_elem.append(['@FILENAME@'   ,self.get_filename()])
-        self.template_elem.append(['@FILENAME_UPPER@',self.get_filename().upper()])
+        
+        ### Defining Multiple elements here
+        self.template_elem_multi=[]
+        self.template_elem_multi.append(['@CLASS_NAME@' ,self.get_class_name()])
+        self.template_elem_multi.append(['@FILENAME@'   ,self.get_filename()])
+        self.template_elem_multi.append(['@FILENAME_UPPER@',[fn.upper() for fn in self.get_filename()]])
         
         
-        
-            
+        ## Processing the files
+        files_path_to_write=[]
+        for f_in,f_out in zip(files_path_to_open,files_path_to_write_raw):
+            n_class = len(self.get_class_name())
+            for i in xrange(n_class):
+                new_f_out = [str(f_out)]
+                new_var_out=[]
+                not_changed = True
+                for e in self.template_elem_multi:
+                    new_var = [e[0],e[1][i]]
+                    new_f_out = ProcFile.process_var_in_str(new_f_out, new_var)
+                    new_var_out.append(new_var)
+                if new_f_out[0] not in files_path_to_write:
+                    pfile = ProcFile(f_in, new_f_out[0],new_var_out)
+                    files_path_to_write.append(new_f_out[0])
+                    self.pfiles.append(pfile)
+        print "Files to be created"
         for pfile in self.pfiles:
-            for var in self.template_elem:
-                pfile.add_var(var)
-            pfile.process_var()
-            pfile.pretty_print()
+            pfile.add_var(self.template_elem)
+            pfile.process_var_in_file_path()
+            print pfile.f_out_path
+            #pfile.pretty_print()
+            #new_f_out = ProcFile.process_var_in_str(new_f_out, new_var)
+
+    def write_files(self):
+        #pfile.process_var_in_files_in()
+        #pfile.pretty_print()
+        for pfile in self.pfiles:
             pfile.write()
         
-        
-            #print 'files out :',files_out
-            #for file_out in files_out:
-                #print self.template_dir+'/'+file_in," => " ,file_out
-                #if isinstance(file_out, str):
-                    #self.__replace_in_file(self.template_dir+'/'+file_in, file_out, self.template_elem, overwrite=False)
         
     def __get_processed_file_list(self,files_in,root_path=''):
         ##### Getting the right Files names
@@ -297,10 +374,10 @@ class FileGenerator():
         return dirs
     def __get_file_tree_raw(self):
         files = self.find_files_in_subdirectories(self.template_dir, self.template_extension)
-        print 'Files to be created'
-        for f in files:
+        #print 'Files to be created'
+        #for f in files:
             #f = self.root_path+f
-            print f
+        #    print f
         return files
         
         
@@ -450,13 +527,13 @@ class FileGenerator():
             print "File",filepath,"already exists, skipping creation."
             return None
         
-    def write_files(self):
-        self.__create_dir_structure()
-        self.__generate_cmakefiles()
-        self.__generate_factory_proxy_file()
-        self.__generate_protofiles()
-        self.__generate_component_files()
-        self.__generate_python_files()
+    #def write_files(self):
+    #    self.__create_dir_structure()
+    #    self.__generate_cmakefiles()
+    #    self.__generate_factory_proxy_file()
+    #    self.__generate_protofiles()
+    #    self.__generate_component_files()
+    #    self.__generate_python_files()
 
     def __is_str_in_file(self,str,filepath):
         with open(filepath,'r') as f:
@@ -818,7 +895,7 @@ class M3ComponentAssistant(gtk.Assistant):
         label = gtk.Label("Project Name :")
         table.attach(label, 0, 1, 1, 2)
         self.entry = gtk.Entry()
-        self.entry.set_text("m3ens")
+        self.entry.set_text("m3project")
         table.attach(self.entry, 1, 2, 1, 2)
         self.entry.connect('changed', self.changed_comp_name_cb)
         
@@ -834,8 +911,11 @@ class M3ComponentAssistant(gtk.Assistant):
 
         # File chooser
         table.attach(gtk.Label("Root folder :"), 0, 1, 3, 4)
-        table.attach(gtk.Label("(ex: mekabot)"), 0, 3, 3, 4)
+        #table.attach(gtk.Label(""), 0, 3, 3, 4)
         self.file_chooser = gtk.FileChooserButton('Select a folder')
+        from os.path import expanduser
+        home = expanduser("~")
+        self.file_chooser.set_filename(home)
         self.file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
         table.attach(self.file_chooser, 1, 2, 3, 4)
         vbox.show_all()
@@ -963,7 +1043,7 @@ class M3ComponentAssistant(gtk.Assistant):
         vbox.show_all()
 
         self.append_page(vbox)
-        self.set_page_title(vbox, 'Your Components Class Name (Inherit from M3Component)')
+        self.set_page_title(vbox, 'Your Components Class Name (inherits from M3Component)')
         self.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
 
         self.set_page_complete(vbox, True)
@@ -1001,22 +1081,66 @@ class M3ComponentAssistant(gtk.Assistant):
 
 
 
-    def __add_sub_com(self,store,top):
-        pname = store.append(top,[self.__get_project_name()+'/'])
-        pcomp = store.append(pname,[self.__get_comp_folder_name()+'/'])
-        return pcomp
-    def __create_component_treeview(self):
+    #def __add_sub_com(self,store,top):
+    #    pname = store.append(top,[self.__get_project_name()+'/'])
+    #    pcomp = store.append(pname,[self.__get_comp_folder_name()+'/'])
+    #    return pcomp
+    def dict_cell_data_func(self,column, cell, model, it, col_key):
+        print "colkey:",col_key,'type:',type(col_key)
+        if isinstance(col_key[1],defaultdict):
+            cell.set_property("text", model.get_value(it,col_key[0])['test'])
+            self.dict_cell_data_func(column, cell, model, it, col_key[1])
+        else:
+            cell.set_property("text", model.get_value(it,col_key[0])[col_key[1]])
+            
+    def create_store(self,main_dict,store,it=None):
+        for key, value in main_dict.iteritems():
+            if key == FILE_MARKER:
+                if value:
+                    for v in value:
+                        store.append(it,[str(v)])
+            else:
+                it_next = store.append(it,[str(key)])
+                if isinstance(value, dict):
+                    self.create_store(value,store,it_next)
+                else:
+                    store.append(it_next,[str(key)])
+
+    def on_row_activated(self, tview, index, user_data):
+        #index=list(index)
+        assert isinstance(tview,gtk.TreeView)
+        assert isinstance(user_data,gtk.TreeViewColumn)        
+        model = tview.get_model()
+        path_to_file=''
+        for i in xrange(1,len(index)+1):
+            path_to_file =path_to_file+'/'+ model[index[:i]][0]
         
+        print path_to_file
+        for pfile in self.fgen.pfiles:
+            assert isinstance(pfile,ProcFile)
+            if path_to_file == pfile.f_out_path:
+                f_name = path_to_file.split('/')[-1]
+                pfile.write_tmp(f_name)
+                pfile.open_tmp()
+        
+    def __create_component_treeview(self):
         root_dir = self.__get_root_dir()
         project_name = self.__get_project_name()
         comp_name = self.__get_comp_folder_name()
-        
         self.fgen=FileGenerator(self.__get_components_class_name(),root_dir,project_name,comp_name,self.__get_username())
         project_dir = self.fgen.get_project_path()
+        input_ = []
+        for pfile in self.fgen.pfiles:
+            input_.append(pfile.f_out_path)
+            
+        main_dict = defaultdict(dict, ((FILE_MARKER, []),))
+        for line in input_:
+            attach(line[1:], main_dict)        
+        
 
         store = gtk.TreeStore(gobject.TYPE_STRING)
-        
-        iter_root = store.append(None, [project_dir + "/"])
+        self.create_store(main_dict, store, None)
+        """iter_root = store.append(None, [project_dir + "/"])
         iter_src = store.append(iter_root, [self.fgen.src_dir+'/'])
         iter_inc = store.append(iter_root, [self.fgen.inc_dir+'/'])
         iter_py = store.append(iter_root, [self.fgen.py_dir+'/'])
@@ -1039,9 +1163,14 @@ class M3ComponentAssistant(gtk.Assistant):
         iter_components = self.__add_sub_com(store, iter_py)
         for f in self.fgen.get_filename():
             store.append(iter_components, [self.fgen.get_python_filename(f)])
-
+        """
+        
         # Create treeview
         treeview = gtk.TreeView(store)
+        treeview.connect("row-activated", self.on_row_activated)
+        #tree_selection = treeview.get_selection()
+        #tree_selection.set_mode(gtk.SELECTION_SINGLE)
+        #tree_selection.connect("changed", self.onSelectionChanged)
         cellrenderer_name = gtk.CellRendererText()
         column_name = gtk.TreeViewColumn("Project", cellrenderer_name, text=0)
         treeview.append_column(column_name)
@@ -1069,9 +1198,16 @@ class M3ComponentAssistant(gtk.Assistant):
     def cb_apply(self, widget):
         self.fgen.write_files()
         return
-        
+def remove_tmp_files():
+    for f in tmp_files:
+        try:
+            os.remove(f)
+            print f,'deleted'
+        except Exception,e:
+            print e
 if __name__ == '__main__':
-    FileGenerator(classname='MyClass', root_path='/home/meka/', project_name='myproject', comp_name='myComp', author='me')
-    #win = M3ComponentAssistant()
-    #win.show()
-    #gtk.main()
+    
+    win = M3ComponentAssistant()
+    win.show()
+    gtk.main()
+    remove_tmp_files()
