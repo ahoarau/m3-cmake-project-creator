@@ -1,15 +1,20 @@
 # M3 CMake Project Creator #
 
-This scripts generates a CMake project to control the Meka robot, using the real-time components.
+This scripts generates a CMake project that contains a simple sin controller to control the Meka robot.
 ## Run the script ##
+Launch the GUI : 
 ```
-#!Bash
 python m3project_creator.py
 ```
-Then follow the instructions, and click on Apply to generate the project files.
+or the console version :
+```
+python m3project_creator.py -h 
+```
+New Features:
 
-Note : No files except the factory_proxy.cpp will be overwritten
-TODO : Add overwriting options
+* Template based generator (see the template folder)
+* Console interface
+* On the GUI : Preview the files before being generated (double-click on them on the tree)
 
 ### The generated files ###
 
@@ -21,36 +26,40 @@ TODO : Add overwriting options
 * (OPTIONAL) **controller_example.py**: An example on how to use the python interface
 
 ### The generated project ###
-The structure is as follow :
 
->project_name/
->>src/
->>>project_name/
->>>>mycomponents/
->>>>>mycontroller.cpp 
->>>>>factory_proxy.cpp 
-
->>include/
->>>project_name/
->>>>mycomponents/
->>>>>mycontroller.h
-
->>proto/
->>>project_name/
->>>>mycomponents/
->>>>>mycontroller.proto
-
->>python/
->>>project_name/
->>>>mycomponents/
->>>>>mycontroller.py
->>>>>controller_example.py
-
-
+```
+myproject
+|-- src
+|   `-- myproject
+|       |-- mycomponent
+|       |   |-- my_class.cpp
+|       |   |-- my_class_factory.cpp
+|       |   `-- CMakeLists.txt
+|       `-- CMakeLists.txt
+|-- include
+|   `-- myproject
+|       `-- mycomponent
+|           `-- my_class.h
+|-- proto
+|   `-- myproject
+|       `-- mycomponent
+|           `-- my_class.proto
+|-- python
+|   `-- myproject
+|       |-- mycomponent
+|       |   |-- __init__.py
+|       |   |-- my_clas.py
+|       |   `-- my_class_example.py
+|       `-- __init__.py
+|-- robot_config
+|   |-- mycomponent
+|   |   `-- my_class_v1.yml
+|   `-- m3_config.yml
+`-- CMakeLists.txt
+```
 ## Compile your project ##
 
 ```
-#!Bash
 cd /path/to/your/project
 mkdir build
 cd build
@@ -60,30 +69,21 @@ make
 
 This will generate the following files:
 
-* **libmycontroller.so**: The library that needs to be loaded in m3.
-* **mycontroller.cc**: The generated protobuf source file.
-* **mycontroller.pb.h**: The generated protobuf header.
-* **mycontroller.pb.py**: The generated protobuf python source.
-
-The structure of you compiled project is now : 
-
->project_name/
-
->>src/
-
->>include/
-
->>proto/
-
->>python/
-
->>lib/
-
->>build/
-
-
+* **libmycomponent.so**: The library that needs to be loaded in m3. Generated in lib/
+* **my_class.cc**: The generated protobuf source file. Generated in build/
+* **my_class.pb.h**: The generated protobuf header. Generated in build/
+* **my_class.pb.py**: The generated protobuf python source. Generated in python/
 
 ## Run your project ##
+Let M3 knows there's an external path to check out:
+```
+source /path/to/your/project/setup.bash
+```
+Run the server as usual:
+```
+m3rt_server_run
+```
+Your component should be at the end of the available components lists.
 
 
 
