@@ -31,10 +31,10 @@ extern "C"
 
     void destroy_@FILENAME@(m3rt::M3Component* c) {delete c;} 
 
-    class M3FactoryProxy 
+    class @CLASS_NAME@FactoryProxy 
     { 
     public:
-        M3FactoryProxy()
+        @CLASS_NAME@FactoryProxy()
         {
             m3rt::creator_factory[@FILENAME_UPPER@_TYPE_NAME] = create_@FILENAME@;
             m3rt::destroyer_factory[@FILENAME_UPPER@_TYPE_NAME] = destroy_@FILENAME@;
@@ -44,5 +44,5 @@ extern "C"
 
     ///////////////////////////////////////////////////////
     // The library's one instance of the proxy
-    M3FactoryProxy proxy;
+    @CLASS_NAME@FactoryProxy proxy;
 }
