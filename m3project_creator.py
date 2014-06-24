@@ -315,7 +315,7 @@ class FileGenerator():
         return path
     
     def get_project_path(self):
-        return self.root_path+self.project_name
+        return self.root_path+'/'+self.project_name
     
     def get_source_filename(self,f):
         return f+'.cpp'
