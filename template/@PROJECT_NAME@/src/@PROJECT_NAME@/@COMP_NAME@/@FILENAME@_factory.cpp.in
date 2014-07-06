@@ -44,5 +44,5 @@ extern "C"
 
     ///////////////////////////////////////////////////////
     // The library's one instance of the proxy
-    @CLASS_NAME@FactoryProxy proxy;
+    @CLASS_NAME@FactoryProxy @FILENAME@_proxy;
 }
