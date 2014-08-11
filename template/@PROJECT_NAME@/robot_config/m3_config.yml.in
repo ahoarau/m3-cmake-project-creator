@@ -4,6 +4,6 @@ factory_rt_libs:
 - @PROJECT_PATH@/lib/lib@COMP_NAME@.so
 
 rt_components:
-  @COMP_NAME@: 
-    @FILENAME@_v1: @FILENAME@ # name of the controller(should match the config file) : type (as in @FILENAME@_factory.cpp)
+- @COMP_NAME@: 
+  - @FILENAME@_v1: @FILENAME@ # name of the controller(should match the config file) : type (as in @FILENAME@_factory.cpp)
 
