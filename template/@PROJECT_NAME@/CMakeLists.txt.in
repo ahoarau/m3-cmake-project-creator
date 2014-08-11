@@ -33,6 +33,8 @@ include_directories(
     ${CMAKE_BINARY_DIR}/src # Include this directory for the generated protobufs headers
 )
 
+# Generate the setup.bash to source
+configure_file(setup.bash.tp ${@PROJECT_NAME_UPPER@_ROOT}/setup.bash)
 
 # Add the main project src dir that contains all the others
 add_subdirectory(src/@PROJECT_NAME@)
