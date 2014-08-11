@@ -38,3 +38,5 @@ configure_file(setup.bash.tp ${@PROJECT_NAME_UPPER@_ROOT}/setup.bash)
 
 # Add the main project src dir that contains all the others
 add_subdirectory(src/@PROJECT_NAME@)
+
+# Created by m3 cmake project creator @DATE@
