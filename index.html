@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="M3 CMake project creator : Ready-to-run package generator for the meka robot">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>M3 CMake project creator</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/ahoarau/m3-cmake-project-creator">View on GitHub</a>
+
+          <h1 id="project_title">M3 CMake project creator</h1>
+          <h2 id="project_tagline">Ready-to-run package generator for the meka robot</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/ahoarau/m3-cmake-project-creator/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/ahoarau/m3-cmake-project-creator/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="m3-cmake-project-creator" class="anchor" href="#m3-cmake-project-creator"><span class="octicon octicon-link"></span></a>M3 CMake Project Creator</h1>
+
+<p>This scripts generates a CMake project that contains a simple sin controller to control the Meka robot.</p>
+
+<h2>
+<a name="run-the-script" class="anchor" href="#run-the-script"><span class="octicon octicon-link"></span></a>Run the script</h2>
+
+<p>Launch the GUI : </p>
+
+<pre><code>python m3project_creator.py
+</code></pre>
+
+<p>or the console version :</p>
+
+<pre><code>python m3project_creator.py -h 
+</code></pre>
+
+<p>New Features:</p>
+
+<ul>
+<li>Template based generator (see the template folder)</li>
+<li>Console interface</li>
+<li>On the GUI : Preview the files before being generated (double-click on them on the tree)</li>
+</ul><h3>
+<a name="the-generated-files" class="anchor" href="#the-generated-files"><span class="octicon octicon-link"></span></a>The generated files</h3>
+
+<ul>
+<li>
+<strong>mycontroller.cpp</strong>: The source file that contains your component class (inherits from the M3Component class).</li>
+<li>
+<strong>mycontroller.h</strong>: The header file associated.</li>
+<li>
+<strong>factory_proxy.cpp</strong>: This file is used by the m3 system to instantiate your component.</li>
+<li>(OPTIONAL) <strong>mycontroller.proto</strong>: A protobuf file that can be used to communicate with your controller (using python for example). This is used in the m3 software.</li>
+<li>(OPTIONAL) <strong>mycontroller.py</strong>: The python interface to your controller</li>
+<li>(OPTIONAL) <strong>controller_example.py</strong>: An example on how to use the python interface</li>
+</ul><h3>
+<a name="the-generated-project" class="anchor" href="#the-generated-project"><span class="octicon octicon-link"></span></a>The generated project</h3>
+
+<pre><code>myproject
+|-- src
+|   `-- myproject
+|       |-- mycomponent
+|       |   |-- my_class.cpp
+|       |   |-- my_class_factory.cpp
+|       |   `-- CMakeLists.txt
+|       `-- CMakeLists.txt
+|-- include
+|   `-- myproject
+|       `-- mycomponent
+|           `-- my_class.h
+|-- proto
+|   `-- myproject
+|       `-- mycomponent
+|           `-- my_class.proto
+|-- python
+|   `-- myproject
+|       |-- mycomponent
+|       |   |-- __init__.py
+|       |   |-- my_clas.py
+|       |   `-- my_class_example.py
+|       `-- __init__.py
+|-- robot_config
+|   |-- mycomponent
+|   |   `-- my_class_v1.yml
+|   `-- m3_config.yml
+`-- CMakeLists.txt
+</code></pre>
+
+<h2>
+<a name="compile-your-project" class="anchor" href="#compile-your-project"><span class="octicon octicon-link"></span></a>Compile your project</h2>
+
+<pre><code>cd /path/to/your/project
+mkdir build
+cd build
+cmake ..
+make
+</code></pre>
+
+<p>This will generate the following files:</p>
+
+<ul>
+<li>
+<strong>libmycomponent.so</strong>: The library that needs to be loaded in m3. Generated in lib/</li>
+<li>
+<strong>my_class.cc</strong>: The generated protobuf source file. Generated in build/</li>
+<li>
+<strong>my_class.pb.h</strong>: The generated protobuf header. Generated in build/</li>
+<li>
+<strong>my_class.pb.py</strong>: The generated protobuf python source. Generated in python/</li>
+</ul><h2>
+<a name="run-your-project" class="anchor" href="#run-your-project"><span class="octicon octicon-link"></span></a>Run your project</h2>
+
+<p>Let M3 knows there's an external path to check out:</p>
+
+<pre><code>source /path/to/your/project/setup.bash
+</code></pre>
+
+<p>Run the server as usual:</p>
+
+<pre><code>m3rt_server_run
+</code></pre>
+
+<p>Your component should be at the end of the available components lists.</p>
+
+<p>Based on m3project_creator.py provided by Meka Robotics, LLC.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">M3 CMake project creator maintained by <a href="https://github.com/ahoarau">ahoarau</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
