@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Antoine Hoarau <hoarau.robotics@gmail.com>
+__version__ = "1.0.9.2"
 
 import gtk, gobject
 import os, pwd, sys, time
@@ -155,7 +157,7 @@ class FileGenerator():
         assert os.path.isdir(root_path)
         
         
-        self.template_dir = 'template'
+        self.template_dir = 'm3project_template'
         self.template_extension = '.in'
         
         self.pfiles=[]
@@ -203,7 +205,6 @@ class FileGenerator():
             for i in xrange(n_class):
                 new_f_out = [str(f_out)]
                 new_var_out=[]
-                not_changed = True
                 for e in self.template_elem_multi:
                     new_var = [e[0],e[1][i]]
                     new_f_out = ProcFile.process_var_in_str(new_f_out, new_var)
@@ -391,7 +392,7 @@ class FileGenerator():
 class M3ComponentAssistant(gtk.Assistant):
     def __init__(self):
         gtk.Assistant.__init__(self)
-        self.set_title("M3 CMake Project Creator")
+        self.set_title('M3 CMake Project Creator v'+__version__)
         self.connect('prepare', self.__prepare_page_cb)
         self.scrolled_window = None
 
