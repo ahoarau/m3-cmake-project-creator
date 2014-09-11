@@ -1,6 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Antoine Hoarau <hoarau.robotics@gmail.com>
-__version__ = "1.0.9.2"
+__version__ = "1.1.7"
 
 import gtk, gobject
 import os, pwd, sys, time
@@ -413,7 +413,9 @@ class M3ComponentAssistant(gtk.Assistant):
         self.set_default_size(400, 400)
 
         self.show()
-
+        
+    def main(self):
+        gtk.main()
     def __prepare_page_cb(self, widget, page):
         if page == self.page_confirm:
             if self.scrolled_window != None:
@@ -478,7 +480,12 @@ class M3ComponentAssistant(gtk.Assistant):
         self.set_page_type(vbox, gtk.ASSISTANT_PAGE_CONTENT)
         
         self.set_page_complete(vbox, True)
+    def delete_event(self, widget, event, data=None):
+        return False
 
+    def destroy(self, widget, data=None):
+        gtk.main_quit()
+        
     def changed_comp_name_cb(self,entry):
         entry_text = entry.get_text()
         entry.set_text(format_comp_name(entry_text))
@@ -747,8 +754,8 @@ def yn_choice(message, default='y'):
     values = ('y', 'yes', '') if default == 'y' else ('y', 'yes')
     return choice.strip().lower() in values
 
-if __name__ == '__main__':
-    if len(sys.argv)>1:
+def main(argv):
+    if len(argv)>1:
         ## Console interface
         parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent("""
@@ -784,7 +791,7 @@ if __name__ == '__main__':
         author=args.AUTHOR
         class_name = args.ClassName
         control_priority = [control_priority_list[-1]]*len(class_name)
-        fgen=FileGenerator(root_dir,project_name,comp_name,class_name,control_priority,get_username())
+        fgen=FileGenerator(root_dir,project_name,comp_name,class_name,control_priority,author)
         ## Print the files to be generated
         input_ = fgen.get_list_of_files_out()
         main_dict = create_dict_tree(input_)
@@ -798,8 +805,9 @@ if __name__ == '__main__':
     else:
         ## Gui interface
         win = M3ComponentAssistant()
-        win.show()
-        gtk.main()
+        win.main()
         remove_tmp_files()
     
-
+if __name__ == '__main__':
+    main(sys.argv)
+    exit(0)

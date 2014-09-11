@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+import sys
+from m3project_creator import pkg_creator
+pkg_creator.main(sys.argv)

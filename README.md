@@ -1,14 +1,26 @@
-# M3 CMake Project Creator #
+M3 CMake Project Creator
+==============================
 
 This scripts generates a CMake project that contains a simple sin controller to control the Meka robot.
-## Run the script ##
-Launch the GUI : 
+
+## Download
+```bash
+sudo -E pip install m3project-creator
 ```
-python m3project_creator.py
+## Upgrades
+
+```bash
+sudo -E pip install m3project-creator --upgrade
+```
+
+## Run the script
+Launch the GUI : 
+```bash
+m3project_creator.py
 ```
 or the console version :
-```
-python m3project_creator.py -h 
+```bash
+m3project_creator.py -h 
 ```
 New Features:
 
@@ -16,7 +28,7 @@ New Features:
 * Console interface
 * On the GUI : Preview the files before being generated (double-click on them on the tree)
 
-### The generated files ###
+### The generated files
 
 * **mycontroller.cpp**: The source file that contains your component class (inherits from the M3Component class).
 * **mycontroller.h**: The header file associated.
@@ -25,9 +37,9 @@ New Features:
 * (OPTIONAL) **mycontroller.py**: The python interface to your controller
 * (OPTIONAL) **controller_example.py**: An example on how to use the python interface
 
-### The generated project ###
+### The generated project
 
-```
+```bash
 myproject
 |-- src
 |   `-- myproject
@@ -57,9 +69,9 @@ myproject
 |   `-- m3_config.yml
 `-- CMakeLists.txt
 ```
-## Compile your project ##
+## Compile your project
 
-```
+```bash
 cd /path/to/your/project
 mkdir build
 cd build
@@ -76,11 +88,11 @@ This will generate the following files:
 
 ## Run your project ##
 Let M3 knows there's an external path to check out:
-```
+```bash
 source /path/to/your/project/setup.bash
 ```
 Run the server as usual:
-```
+```bash
 m3rt_server_run
 ```
 Your component should be at the end of the available components lists.
