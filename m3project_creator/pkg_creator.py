@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Antoine Hoarau <hoarau.robotics@gmail.com>
-__version__ = "1.1.9"
+__version__ = "1.2.0"
 
 import gtk, gobject
 import os, pwd, sys, time
@@ -760,14 +760,14 @@ def main(argv):
         parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
         description=textwrap.dedent("""
         Welcome to the M3 CMake Project Creator.
-        --------------------------------------------------------------------------
-        | This script helps you create a CMake project to develop m3 components. |
-        | Launch this script without arguments to use the GUI.                   |
-        |                                                                        |
-        | example : python m3project_creator myproject mycomponent MyClass    |
-        |                                                                        |
-        | Author : Meka Robotics LLC (original), Antoine Hoarau (CMake)          |
-        --------------------------------------------------------------------------
+        ----------------------------------------------------------------------------
+        | This script helps you create a CMake project to develop m3 components.   |
+        | Launch this script without arguments to use the GUI.                     |
+        |                                                                          |
+        | example : python m3project_creator myproject mycomponentdir MyController |
+        |                                                                          |
+        | Author : Meka Robotics LLC (original), Antoine Hoarau (CMake)            |
+        ----------------------------------------------------------------------------
 
         """),epilog='Maintainer: Antoine Hoarau <hoarau.robotics AT gmail DOT com>')
 
@@ -778,18 +778,18 @@ def main(argv):
         
         parser.add_argument('ProjectName', type=str,help='The name of the main directory/namespace used in classes.')
         
-        parser.add_argument('ComponentName', type=str,help='The name of the subdirectory containing your classes.')
+        parser.add_argument('ControllersDirName', type=str,help='The name of the subdirectory containing your controllers.')
         
-        parser.add_argument('ClassName', type=str, nargs='*',help='The name of your class (can be a list).')
+        parser.add_argument('ControllerName', type=str, nargs='+',help='The name of your controller (can be a list).')
         
         parser.add_argument('-a','--author', type=str,default=get_username(),help='Who wrote the script (default: '+get_username()+')',dest='AUTHOR')
                 
         args = parser.parse_args()
         project_name= args.ProjectName
         root_dir = args.ROOT_DIR
-        comp_name = args.ComponentName
+        comp_name = args.ControllersDirName
         author=args.AUTHOR
-        class_name = args.ClassName
+        class_name = args.ControllerName
         control_priority = [control_priority_list[-1]]*len(class_name)
         fgen=FileGenerator(root_dir,project_name,comp_name,class_name,control_priority,author)
         ## Print the files to be generated
