@@ -5,7 +5,7 @@ project(@PROJECT_NAME@)
 set(@PROJECT_NAME_UPPER@_ROOT ${PROJECT_SOURCE_DIR})
 
 # Set where to find the FindXXX.cmake
-set(CMAKE_MODULE_PATH "$ENV{M3_ROBOT}/../meka-cmake-modules/Modules/" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "$ENV{M3_CMAKE_MODULES}" ${CMAKE_MODULE_PATH})
 
 # Set all bunch of usefull variables
 set(@PROJECT_NAME_UPPER@_INCLUDE_DIR ${@PROJECT_NAME_UPPER@_ROOT}/include)

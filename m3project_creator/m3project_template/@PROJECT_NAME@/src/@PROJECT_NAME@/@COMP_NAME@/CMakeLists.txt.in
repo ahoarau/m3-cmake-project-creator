@@ -9,8 +9,18 @@ find_package(M3 REQUIRED toolbox chains robots hardware robot_ctrl shared_mem)
 find_package(Boost REQUIRED)
 find_package(Eigen3 3 REQUIRED)
 find_package(Protobuf REQUIRED)
-find_package(OROCOS-KDL REQUIRED)
-find_package(YamlCpp REQUIRED)
+find_package(orocos_kdl REQUIRED)
+
+## Yamlcpp >0.5 support
+find_package(PkgConfig REQUIRED)
+#find_package(YamlCpp  REQUIRED)
+pkg_check_modules(YAMLCPP REQUIRED yaml-cpp)
+if(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
+set_property(
+   DIRECTORY
+   PROPERTY COMPILE_DEFINITIONS YAMLCPP_05
+   )
+endif(NOT ${YAMLCPP_VERSION} VERSION_LESS "0.5")
 
 # Start Protobuf
 # Get all your protofiles
@@ -46,6 +56,7 @@ include_directories(
     ${M3_INCLUDE_DIR}
     ${KDL_INCLUDE_DIRS}
     ${YAMLCPP_INCLUDE_DIR}
+    ${orocos_kdl_INCLUDE_DIRS}
 )
 
 
@@ -59,6 +70,7 @@ SET(LIBS
 	${PROTOBUF_LIBRARIES}
 	${M3RT_LIBRARIES}
 	${M3_LIBRARIES}
+	${orocos_kdl_LIBRARIES}
 )
 
 # Set your srcs here
