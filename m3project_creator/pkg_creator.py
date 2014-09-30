@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Antoine Hoarau <hoarau.robotics@gmail.com>
-__version__ = "1.1.7"
+__version__ = "1.1.9"
 
 import gtk, gobject
 import os, pwd, sys, time

@@ -12,7 +12,7 @@ setup(name='m3project-creator',
       url='https://github.com/ahoarau/m3-cmake-project-creator',
       requires=['gtk'],
       license="GPL",
-      scripts=["m3project_creator.py"],
+      scripts=["m3create_pkg"],
       packages=find_packages(),
       include_package_data=True,
      )
