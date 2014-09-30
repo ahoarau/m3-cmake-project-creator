@@ -16,11 +16,11 @@ sudo -E pip install m3project-creator --upgrade
 ## Run the script
 Launch the GUI : 
 ```bash
-m3project_creator.py
+m3create_pkg
 ```
 or the console version :
 ```bash
-m3project_creator.py -h 
+m3create_pkg -h 
 ```
 New Features:
 
