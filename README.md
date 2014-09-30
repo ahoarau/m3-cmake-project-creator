@@ -22,6 +22,10 @@ or the console version :
 ```bash
 m3create_pkg -h 
 ```
+Example : 
+```bash
+m3create_pkg m3awesome_project sincontrollers myawesomecontroller 
+```
 New Features:
 
 * Template based generator (see the template folder)
