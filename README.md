@@ -64,7 +64,7 @@ myproject
 |   `-- myproject
 |       |-- mycomponent
 |       |   |-- __init__.py
-|       |   |-- my_clas.py
+|       |   |-- my_class.py
 |       |   `-- my_class_example.py
 |       `-- __init__.py
 |-- robot_config
@@ -89,9 +89,10 @@ This will generate the following files:
 * **my_class.cc**: The generated protobuf source file. Generated in build/
 * **my_class.pb.h**: The generated protobuf header. Generated in build/
 * **my_class.pb.py**: The generated protobuf python source. Generated in python/
-
+* **setup.bash**: A file that contains information about your package
+* 
 ## Run your project ##
-Let M3 knows there's an external path to check out:
+Let M3 knows there's an external path to check out (you should do that in all terminal you open):
 ```bash
 source /path/to/your/project/setup.bash
 ```
@@ -101,6 +102,17 @@ m3rt_server_run
 ```
 Your component should be at the end of the available components lists.
 
+Vizualize the robot in rviz : 
+```bash
+roslaunch meka_description m3ens_viz.launch
+```
+Add a robot model and change 'fixed frame' to 'T0'.
+Now **enable** your component and see the robot moves:
+```bash
+cd /path/to/your/project/python/componentdir/mycontroller/
+python mycontroller_example.py
+```
 
+Good luck !
 
 Based on m3project_creator.py provided by Meka Robotics, LLC.
