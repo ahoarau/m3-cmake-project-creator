@@ -210,7 +210,7 @@ class FileGenerator():
                     new_f_out = ProcFile.process_var_in_str(new_f_out, new_var)
                     new_var_out.append(new_var)
                 if new_f_out[0] not in files_path_to_write:
-                    pfile = ProcFile(f_in, new_f_out[0],new_var_out)
+                    pfile = ProcFile(str(f_in), str(new_f_out[0]),new_var_out)
                     files_path_to_write.append(new_f_out[0])
                     self.pfiles.append(pfile)
                     
@@ -492,8 +492,7 @@ class M3ComponentAssistant(gtk.Assistant):
         return
 
     def edited_class_name_cb(self, cell, path, new_text, model ):
-        entry_text = model[path][0]
-        model[path][0] = format_class_name(entry_text)
+        model[path][0] = format_class_name(new_text)
         return
 
     def prio_edited_cb(self, renderer, path, new_text):
@@ -546,7 +545,7 @@ class M3ComponentAssistant(gtk.Assistant):
 
         # Create the model
         self.store = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_BOOLEAN)
-        self.store.append(('ControllerExample', 'ROBOT_CTRL_PRIORITY', False))
+        self.store.append(('ControllerTest', 'ROBOT_CTRL_PRIORITY', False))
 
         # Create treeview
         self.treeview = gtk.TreeView(self.store)
@@ -598,7 +597,10 @@ class M3ComponentAssistant(gtk.Assistant):
 
     def __get_project_name(self):
         return self.entry.get_text()
-
+        
+    def __get_author(self):
+        return self.author_entry.get_text()
+        
     def __get_components_info(self):
         return [(row[0], row[1], row[2]) for row in self.store]
 
@@ -610,6 +612,7 @@ class M3ComponentAssistant(gtk.Assistant):
             if row[2] == True:
                 names.append(name + "Ec")
         return names
+        
     def __get_components_control_priority(self):
         names = []
         for row in self.store:
@@ -669,7 +672,9 @@ class M3ComponentAssistant(gtk.Assistant):
         comp_name = self.__get_comp_folder_name()
         class_name = self.__get_components_class_name()
         control_priority = self.__get_components_control_priority()
-        self.fgen=FileGenerator(root_dir,project_name,comp_name,class_name,control_priority,get_username())
+        author = self.__get_author()
+        print root_dir,project_name,comp_name,class_name,control_priority,author
+        self.fgen=FileGenerator(root_dir,project_name,comp_name,class_name,control_priority,author)
 
         input_ = self.fgen.get_list_of_files_out()
 
