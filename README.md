@@ -74,6 +74,12 @@ myproject
 `-- CMakeLists.txt
 ```
 ## Compile your project
+First you might want to get some useful FindXXX.cmake (for M3 system, Yamlccp, protobuf etc):
+```
+cd /path/to/your/project
+git clone https://github.com/ahoarau/meka-cmake-modules.git
+```
+Then you can compile your project safely:
 
 ```bash
 cd /path/to/your/project
