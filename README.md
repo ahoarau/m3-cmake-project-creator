@@ -74,7 +74,11 @@ myproject
 `-- CMakeLists.txt
 ```
 ## Compile your project
-First you might want to get some useful FindXXX.cmake (for M3 system, Yamlccp, protobuf etc):
+If you don't have the M3_CMAKE_MODULES var set (latest version of m3 software):
+```
+echo $M3_CMAKE_MODULES 
+```
+Then,you might want to get some useful FindXXX.cmake (for M3 system, Yamlccp, protobuf etc):
 ```
 cd /path/to/your/project
 git clone https://github.com/ahoarau/meka-cmake-modules.git
