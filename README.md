@@ -98,7 +98,7 @@ This will generate the following files:
 * **setup.bash**: A file that contains information about your package
 * 
 ## Run your project ##
-Let M3 knows there's an external path to check out (you should do that in all terminal you open):
+Let M3 knows there's an external path to check out (you should do that in all terminals you open):
 ```bash
 source /path/to/your/project/setup.bash
 ```
@@ -106,7 +106,7 @@ Run the server as usual:
 ```bash
 m3rt_server_run
 ```
-Your component should be at the end of the available components lists.
+Your component should be at the top of the available components lists (default name is controller_example_v1).
 
 Vizualize the robot in rviz : 
 ```bash
@@ -115,6 +115,7 @@ roslaunch meka_description m3ens_viz.launch
 Add a robot model and change 'fixed frame' to 'T0'.
 Now **enable** your component and see the robot moves:
 ```bash
+# source your setup.bash first !
 cd /path/to/your/project/python/componentdir/mycontroller/
 python mycontroller_example.py
 ```
