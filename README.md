@@ -1,37 +1,39 @@
 M3 CMake Project Creator
 ==============================
 
-This scripts generates a CMake project that contains a simple sin controller to control the Meka robot.
+This package is a template-based project generator for the Meka robot, using the new overlay interface. It can be used as a tutorial for your future M3 Components.
 
-## Download
-```bash
-sudo -E pip install m3project-creator
-```
-## Upgrades
-
-```bash
-sudo -E pip install m3project-creator --upgrade
-```
-
-## Run the script
-Launch the GUI : 
-```bash
-m3create_pkg
-```
-or the console version :
-```bash
-m3create_pkg -h 
-```
-Example : 
-```bash
-m3create_pkg m3awesome_project sincontrollers myawesomecontroller 
-```
 New Features:
 
 * Template based generator (see the template folder)
 * Console interface
 * On the GUI : Preview the files before being generated (double-click on them on the tree)
 
+
+## Install
+The package is uploaded to pypi, to downloading/installing is made easy.
+```bash
+sudo -E pip install m3project-creator
+```
+## Upgrades
+If you've already installed m3project-creator, please use this command to update it:
+```bash
+sudo -E pip install m3project-creator --upgrade
+```
+
+## Run the M3 CMake project generator
+Using the  GUI : 
+```bash
+m3create_pkg
+```
+or the console version :
+```bash
+m3create_pkg --help
+```
+Example : 
+```bash
+m3create_pkg m3awesome_project sincontrollers myawesomecontroller 
+```
 ### The generated files
 
 * **mycontroller.cpp**: The source file that contains your component class (inherits from the M3Component class).
@@ -118,8 +120,10 @@ roslaunch meka_description m3ens_viz.launch
 ```
 Add a robot model and change 'fixed frame' to 'T0'.
 Now **enable** your component and see the robot moves:
+
 ```bash
-# source your setup.bash first !
+# First load your project's environnement variables
+source /path/to/your/project/setup.bash
 cd /path/to/your/project/python/componentdir/mycontroller/
 python mycontroller_example.py
 ```
@@ -127,3 +131,5 @@ python mycontroller_example.py
 Good luck !
 
 Based on m3project_creator.py provided by Meka Robotics, LLC.
+
+> Maintainer: Antoine Hoarau <hoarau.robotics@gmail.com>
