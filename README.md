@@ -91,7 +91,7 @@ Then you can compile your project safely:
 cd /path/to/your/project
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_CXX_FLAGS="-std=C++0x" -DCMAKE_BUILD_TYPE=Release
 make
 ```
 
